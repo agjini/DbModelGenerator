@@ -7,6 +7,10 @@ namespace DbModelGenerator
 {
     public sealed class GenerateDbModel : Task
     {
+        public string IdentityInterface { get; set; }
+
+        public string ScriptsDir { get; set; }
+
         [Output] public ITaskItem[] GeneratedFiles { get; private set; }
 
         public override bool Execute()
@@ -17,11 +21,13 @@ namespace DbModelGenerator
                 throw new ArgumentException("ProjectPath is not defined");
             }
 
+            var scriptsDirectory = ScriptsDir ?? "Scripts";
+
             using (var modelGenerator = new DbModelGenerator())
             {
-                var scriptsPath = Path.Combine(projectPath, "Scripts");
+                var scriptsPath = Path.Combine(projectPath, scriptsDirectory);
 
-                GeneratedFiles = modelGenerator.Generate(projectPath, scriptsPath);
+                GeneratedFiles = modelGenerator.Generate(projectPath, scriptsPath, IdentityInterface);
             }
 
             return true;

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Dapper;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -21,7 +22,7 @@ namespace DbModelGenerator
             database = new SqliteMemoryDatabase(directoryInfo.FullName);
         }
 
-        public ITaskItem[] Generate(string projectPath, string scriptsPath)
+        public ITaskItem[] Generate(string projectPath, string scriptsPath, string identityInterface)
         {
             if (!Directory.Exists(projectPath))
             {
@@ -34,15 +35,18 @@ namespace DbModelGenerator
             }
 
             return Directory.GetDirectories(scriptsPath)
-                .SelectMany(d => GenerateDirectory(d, projectPath))
+                .SelectMany(d => GenerateDirectory(d, projectPath, identityInterface))
                 .ToArray();
         }
 
-        private IEnumerable<ITaskItem> GenerateDirectory(string scriptDirectory, string projectPath)
+        private IEnumerable<ITaskItem> GenerateDirectory(string scriptDirectory, string projectPath,
+            string identityInterfaceParam)
         {
             var ignore = new[] {"SchemaVersions", "sqlite_sequence"};
 
             var scriptNamespace = Path.GetFileName(scriptDirectory);
+
+            var identityInterface = ParseIdentityInterface(identityInterfaceParam);
 
             if (scriptNamespace == null)
             {
@@ -92,13 +96,26 @@ namespace DbModelGenerator
 
                     if (ColumnParser.RequiresSystemUsing(columns))
                     {
-                        contentBuilder.Append("using System;\n\n");
+                        contentBuilder.Append("using System;\n");
                     }
 
-                    contentBuilder.Append($"namespace {ns}\n{{\n\n");
+                    var idColumn = columns.FirstOrDefault(c => c.IsPrimaryKey && c.Name.ToLower().Equals("id"));
+
+                    if (identityInterface != null && idColumn != null)
+                    {
+                        contentBuilder.Append($"using {identityInterface.Item1};\n");
+                    }
+
+                    contentBuilder.Append($"\nnamespace {ns}\n{{\n\n");
                     contentBuilder.Append($"\tpublic sealed class {className}\n{{\n\n");
 
                     var args = string.Join(", ", columns.Select(c => $"{c.TypeAsString()} {c.Name}"));
+
+                    contentBuilder.Append($"\t\tpublic {className}({args})\n{{\n");
+                    if (identityInterface != null && idColumn != null)
+                    {
+                        contentBuilder.Append($": {identityInterface.Item2}<{idColumn.TypeAsString()}>");
+                    }
 
                     contentBuilder.Append($"\t\tpublic {className}({args})\n{{\n");
                     contentBuilder.Append(string.Join("\n",
@@ -122,7 +139,7 @@ namespace DbModelGenerator
             }
         }
 
-        public static string ToPascalCase(string s)
+        private static string ToPascalCase(string s)
         {
             var words = s.Split(new[] {'-', '_'}, StringSplitOptions.RemoveEmptyEntries);
 
@@ -134,6 +151,24 @@ namespace DbModelGenerator
             }
 
             return sb.ToString();
+        }
+
+        private static Tuple<string, string> ParseIdentityInterface(string identityInterface)
+        {
+            if (identityInterface == null)
+            {
+                return null;
+            }
+
+            const string pattern = @"(?<ns>.*)\.(?<classname>[^.]+)";
+            var match = Regex.Match(identityInterface, pattern);
+            if (match.Success)
+            {
+                return new Tuple<string, string>(match.Groups["ns"].Value, match.Groups["classname"].Value);
+            }
+
+            throw new ArgumentException(
+                $"Parameter IdentityInterface has wrong format : {identityInterface} must be of the form 'Namespace.ClassName'");
         }
 
         public void Dispose()
