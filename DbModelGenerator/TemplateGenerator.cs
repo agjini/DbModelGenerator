@@ -19,7 +19,7 @@ namespace DbModelGenerator
                 .ToImmutableList();
         }
 
-        public static IEnumerable<ITaskItem> Generate(Schema schema, string projectPath, string identityInterface)
+        public IEnumerable<ITaskItem> Generate(Schema schema, string projectPath, string identityInterface)
         {
             if (!schema.Tables.Any())
             {
@@ -84,7 +84,7 @@ namespace DbModelGenerator
             }
 
             contentBuilder.Append($"\nnamespace {ns}\n{{\n\n");
-            
+
             contentBuilder.Append($"\tpublic sealed class {className}");
             if (identityInterface != null && idColumn != null)
             {

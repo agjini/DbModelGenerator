@@ -23,12 +23,9 @@ namespace DbModelGenerator
 
             var scriptsDirectory = ScriptsDir ?? "Scripts";
 
-            using (var modelGenerator = new DbModelGenerator())
-            {
-                var scriptsPath = Path.Combine(projectPath, scriptsDirectory);
+            var scriptsPath = Path.Combine(projectPath, scriptsDirectory);
 
-                GeneratedFiles = modelGenerator.Generate(projectPath, scriptsPath, IdentityInterface);
-            }
+            GeneratedFiles = DbModelGenerator.Generate(projectPath, scriptsPath, IdentityInterface);
 
             return true;
         }
