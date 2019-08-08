@@ -46,14 +46,14 @@ namespace DbModelGenerator
 
             var scriptNamespace = Path.GetFileName(scriptDirectory);
 
-            var identityInterface = ParseIdentityInterface(identityInterfaceParam);
-
             if (scriptNamespace == null)
             {
                 throw new ArgumentException($"Project script namespace not found for '{scriptDirectory}' !");
             }
 
             database.UpdgradeSchema(scriptDirectory, scriptNamespace);
+
+            var identityInterface = ParseIdentityInterface(identityInterfaceParam);
 
             using (var connection = database.NewConnection(scriptNamespace))
             {
