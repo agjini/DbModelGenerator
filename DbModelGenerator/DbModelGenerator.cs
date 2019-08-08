@@ -95,12 +95,12 @@ namespace DbModelGenerator
                         contentBuilder.Append("using System;\n\n");
                     }
 
-                    contentBuilder.Append($"namespace {ns} {{\n\n");
-                    contentBuilder.Append($"\tpublic sealed class {className} {{\n\n");
+                    contentBuilder.Append($"namespace {ns}\n{{\n\n");
+                    contentBuilder.Append($"\tpublic sealed class {className}\n{{\n\n");
 
                     var args = string.Join(", ", columns.Select(c => $"{c.TypeAsString()} {c.Name}"));
 
-                    contentBuilder.Append($"\t\tpublic {className}({args}) {{\n");
+                    contentBuilder.Append($"\t\tpublic {className}({args})\n{{\n");
                     contentBuilder.Append(string.Join("\n",
                         columns.Select(c => $"\t\t\t{ToPascalCase(c.Name)} = {c.Name};")));
                     contentBuilder.Append("\n\t\t}\n\n");
