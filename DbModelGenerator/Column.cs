@@ -12,7 +12,7 @@ namespace DbModelGenerator
 
         public static Column Parse(dynamic column)
         {
-            return new Column(column.name, ParseType(column.type), column.notnull.Equals("1"), column.pk.Equals("1"));
+            return new Column(column.name, ParseType(column.type), column.notnull == 0, column.pk > 0);
         }
 
         private static string ParseType(string datatype)
@@ -61,6 +61,11 @@ namespace DbModelGenerator
         public bool RequiresSystemUsing()
         {
             return Type.Equals("Guid") || Type.Equals("DateTime");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
         }
     }
 }

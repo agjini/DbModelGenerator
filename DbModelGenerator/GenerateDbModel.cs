@@ -25,6 +25,10 @@ namespace DbModelGenerator
 
             var scriptsPath = Path.Combine(projectPath, scriptsDirectory);
 
+            Log.LogMessage("ProjectPath : " + projectPath);
+            Log.LogMessage("IdentityInterface : " + IdentityInterface);
+            Log.LogMessage("ScriptsPath : " + scriptsPath);
+            
             GeneratedFiles = DbModelGenerator.Generate(projectPath, scriptsPath, IdentityInterface, Log);
 
             return true;

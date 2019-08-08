@@ -12,5 +12,10 @@ namespace DbModelGenerator
 
         public string Name { get; }
         public IEnumerable<Column> Columns { get; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

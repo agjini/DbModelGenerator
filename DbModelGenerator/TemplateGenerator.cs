@@ -45,6 +45,7 @@ namespace DbModelGenerator
                 var outputFile = Path.Combine(generatedPath, $"{className}.cs");
 
                 var ns = $"{Path.GetFileName(projectPath)}.Generated.Db.{scriptNamespace}";
+
                 var content = GenerateClass(ns, table, identityInterface);
                 File.WriteAllText(outputFile, content, Encoding.UTF8);
 
@@ -60,7 +61,6 @@ namespace DbModelGenerator
             var className = ToPascalCase(table.Name);
 
             var identityInterface = ParseIdentityInterface(identityInterfaceParam);
-
             var contentBuilder = new StringBuilder();
 
             if (ColumnParser.RequiresSystemUsing(table.Columns))
