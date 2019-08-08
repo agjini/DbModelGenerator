@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageId>DbModelGenerator</PackageId>
-        <Version>0.0.9</Version>
+        <Version>0.0.10</Version>
         <Authors>Augustin Gjini</Authors>
         <Company>Synergee</Company>
         <IsPackable>true</IsPackable>
@@ -22,7 +22,7 @@
             <PrivateAssets>all</PrivateAssets>
         </ProjectReference>
     </ItemDefinitionGroup>
-    
+
     <ItemGroup>
         <!-- pack the props files -->
         <Content Include="build\*" PackagePath="build\"/>
@@ -41,7 +41,7 @@
         but before NuGet generates a nuspec.
         -->
         <ItemGroup>
-            <_PackageFiles Include="bin\$(Configuration)\*\Dapper.dll;bin\$(Configuration)\*\dbup-sqlite.dll;bin\$(Configuration)\*\Microsoft.Data.Sqlite.dll">
+            <_PackageFiles Include="bin\$(Configuration)\*\Dapper.dll;bin\$(Configuration)\*\dbup-sqlite.dll;bin\$(Configuration)\*\dbup-core.dll;bin\$(Configuration)\*\Microsoft.Data.Sqlite.dll;bin\$(Configuration)\*\SQLite.dll">
                 <PackagePath>tasks%(RecursiveDir)</PackagePath>
                 <Visible>false</Visible>
                 <BuildAction>Content</BuildAction>
