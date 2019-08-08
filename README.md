@@ -17,7 +17,7 @@ In your .csproj file simply add the reference to the nuget assembly:
 And then feel free to call the DbGenerateModel task on pre-build step :
 
 ```xml
-    <Target Name="Generate Db Model" BeforeTargets="PreBuild">
+    <Target Name="Generate Db Model" BeforeTargets="BeforeBuild">
         <GenerateDbModel/>
     </Target>
 ```
