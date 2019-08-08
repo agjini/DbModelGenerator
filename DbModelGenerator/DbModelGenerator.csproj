@@ -11,6 +11,7 @@
         <NoPackageAnalysis>true</NoPackageAnalysis>
         <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <PackageProjectUrl>https://github.com/agjini/DbModelGenerator</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemDefinitionGroup>
