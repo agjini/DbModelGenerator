@@ -1,0 +1,7 @@
+obj/
+bin/
+!.idea/
+.idea/*
+!.idea/.idea.synergee-backend/.idea/runConfigurations/
+*.user
+Generated/

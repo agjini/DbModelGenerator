@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageId>DbModelGenerator</PackageId>
+        <Version>0.0.9</Version>
+        <Authors>Augustin Gjini</Authors>
+        <Company>Synergee</Company>
+        <IsPackable>true</IsPackable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <NoPackageAnalysis>true</NoPackageAnalysis>
+        <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <ItemDefinitionGroup>
+        <PackageReference>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <ProjectReference>
+            <PrivateAssets>all</PrivateAssets>
+        </ProjectReference>
+    </ItemDefinitionGroup>
+    
+    <ItemGroup>
+        <!-- pack the props files -->
+        <Content Include="build\*" PackagePath="build\"/>
+        <Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Dapper" Version="1.60.6"/>
+        <PackageReference Include="dbup-sqlite" Version="4.2.0"/>
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.0.461"/>
+    </ItemGroup>
+
+    <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
+        <!--
+        The include needs to happen after output has been copied to build output folder
+        but before NuGet generates a nuspec.
+        -->
+        <ItemGroup>
+            <_PackageFiles Include="bin\$(Configuration)\*\Dapper.dll;bin\$(Configuration)\*\dbup-sqlite.dll;bin\$(Configuration)\*\Microsoft.Data.Sqlite.dll">
+                <PackagePath>tasks%(RecursiveDir)</PackagePath>
+                <Visible>false</Visible>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+        </ItemGroup>
+    </Target>
+
+</Project>
