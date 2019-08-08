@@ -10,14 +10,14 @@ In your .csproj file simply add the reference to the nuget assembly:
 
 ```xml
     <ItemGroup>
-        <PackageReference Include="DbModelGenerator" Version="0.0.12"/>
+        <PackageReference Include="DbModelGenerator" Version="0.0.13"/>
     </ItemGroup>
 ```
 
 And then feel free to call the DbGenerateModel task on pre-build step :
 
 ```xml
-    <Target Name="Generate Db Model" BeforeTargets="Build">
+    <Target Name="Generate Db Model" BeforeTargets="PreBuild">
         <GenerateDbModel/>
     </Target>
 ```

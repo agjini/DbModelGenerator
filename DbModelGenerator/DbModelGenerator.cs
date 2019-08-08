@@ -2,12 +2,14 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 
 namespace DbModelGenerator
 {
     public sealed class DbModelGenerator
     {
-        public static ITaskItem[] Generate(string projectPath, string scriptsPath, string identityInterface)
+        public static ITaskItem[] Generate(string projectPath, string scriptsPath, string identityInterface,
+            TaskLoggingHelper log)
         {
             if (!Directory.Exists(projectPath))
             {
@@ -19,19 +21,17 @@ namespace DbModelGenerator
                 throw new ArgumentException($"Project scripts path '{scriptsPath}' does not exist !");
             }
 
-            var templateGenerator = new TemplateGenerator();
-
             return Directory.GetDirectories(scriptsPath)
-                .Select(d => ReadSchema(d, projectPath))
-                .SelectMany(d => templateGenerator.Generate(d, projectPath, identityInterface))
+                .Select(d => ReadSchema(d, projectPath, log))
+                .SelectMany(d => TemplateGenerator.Generate(d, projectPath, identityInterface, log))
                 .ToArray();
         }
 
-        private static Schema ReadSchema(string scriptDirectory, string projectPath)
+        private static Schema ReadSchema(string scriptDirectory, string projectPath, TaskLoggingHelper log)
         {
             using (var dbSchemaReader = new DbSchemaReader())
             {
-                return dbSchemaReader.Read(projectPath, scriptDirectory);
+                return dbSchemaReader.Read(projectPath, scriptDirectory, log);
             }
         }
     }

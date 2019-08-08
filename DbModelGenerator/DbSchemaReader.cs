@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Dapper;
+using Microsoft.Build.Utilities;
 
 namespace DbModelGenerator
 {
@@ -18,7 +19,7 @@ namespace DbModelGenerator
             database = new SqliteMemoryDatabase(directoryInfo.FullName);
         }
 
-        public Schema Read(string projectPath, string scriptDirectory)
+        public Schema Read(string projectPath, string scriptDirectory, TaskLoggingHelper log)
         {
             if (!Directory.Exists(projectPath))
             {
@@ -34,7 +35,7 @@ namespace DbModelGenerator
                 throw new ArgumentException($"Project script namespace not found for '{scriptDirectory}' !");
             }
 
-            database.UpdgradeSchema(scriptDirectory, scriptNamespace);
+            database.UpdgradeSchema(scriptDirectory, scriptNamespace, log);
 
             using (var connection = database.NewConnection(scriptNamespace))
             {

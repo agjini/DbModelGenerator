@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,14 +11,8 @@ namespace DbModelGenerator
 {
     public sealed class TemplateGenerator
     {
-        public IEnumerable<ITaskItem> Generate(IEnumerable<Schema> schemas, string projectPath,
-            string identityInterfaceParam)
-        {
-            return schemas.SelectMany(s => Generate(s, projectPath, identityInterfaceParam))
-                .ToImmutableList();
-        }
-
-        public IEnumerable<ITaskItem> Generate(Schema schema, string projectPath, string identityInterface)
+        public static IEnumerable<ITaskItem> Generate(Schema schema, string projectPath, string identityInterface,
+            TaskLoggingHelper log)
         {
             if (!schema.Tables.Any())
             {
@@ -56,7 +49,7 @@ namespace DbModelGenerator
                 File.WriteAllText(outputFile, content, Encoding.UTF8);
 
                 taskItems.Add(new TaskItem(outputFile));
-                Console.WriteLine($"Table '{table}' -> {outputFile}");
+                log.LogMessage(MessageImportance.Normal, $"Table '{table}' -> {outputFile}");
             }
 
             return taskItems;

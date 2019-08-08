@@ -2,6 +2,8 @@ using System;
 using DbUp;
 using DbUp.Builder;
 using DbUp.Engine.Output;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using Microsoft.Data.Sqlite;
 
 namespace DbModelGenerator
@@ -15,23 +17,24 @@ namespace DbModelGenerator
             this.databasePath = databasePath;
         }
 
-        public void UpdgradeSchema(string path, string database)
+        public void UpdgradeSchema(string path, string database, TaskLoggingHelper log)
         {
             var engineBuilder = DeployChanges.To.SQLiteDatabase(NewConnectionString(database));
-            PerformUpdgrade(path, database, engineBuilder);
+            PerformUpdgrade(path, database, engineBuilder, log);
         }
 
-        public static void PerformUpdgrade(string path, string database, UpgradeEngineBuilder engineBuilder)
+        public static void PerformUpdgrade(string path, string database, UpgradeEngineBuilder engineBuilder,
+            TaskLoggingHelper log)
         {
             var upgrader = engineBuilder
                 .WithScriptsFromFileSystem(path)
                 .WithTransaction()
-                .LogTo(new DbUpgradeLogger())
+                .LogTo(new DbUpgradeLogger(log))
                 .Build();
 
             if (upgrader.PerformUpgrade().Successful)
             {
-                Console.WriteLine($"{database} migrated successfully");
+                log.LogMessage(MessageImportance.Normal, $"{database} migrated successfully");
             }
         }
 
@@ -55,19 +58,27 @@ namespace DbModelGenerator
 
     internal sealed class DbUpgradeLogger : IUpgradeLog
     {
+        private readonly TaskLoggingHelper log;
+
+        public DbUpgradeLogger(TaskLoggingHelper log)
+        {
+            this.log = log;
+        }
+
         public void WriteInformation(string format, params object[] args)
         {
-            Console.WriteLine(format, args);
+            log.LogMessage(MessageImportance.Normal, format, args);
         }
 
         public void WriteError(string format, params object[] args)
         {
-            Console.Error.WriteLine(format, args);
+            log.LogError(format, args);
+            throw new ArgumentException(string.Format(format, args));
         }
 
         public void WriteWarning(string format, params object[] args)
         {
-            Console.Error.WriteLine(format, args);
+            log.LogWarning(format, args);
         }
     }
 }
