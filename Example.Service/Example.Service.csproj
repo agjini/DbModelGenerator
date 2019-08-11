@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>8</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Folder Include="Generated\**\*"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DbModelGenerator\DbModelGenerator.csproj"/>
+    </ItemGroup>
+
+    <UsingTask TaskName="DbModelGenerator.GenerateDbModel" AssemblyFile="$(MSBuildThisFileDirectory)../DbModelGenerator/bin/Debug/netstandard2.0/DbModelGenerator.dll"/>
+
+    <Target Name="Generate Db Model" BeforeTargets="BeforeBuild">
+        <GenerateDbModel IdentityInterface="Example.Service.IEntity"/>
+    </Target>
+
+</Project> 
