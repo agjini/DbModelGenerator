@@ -29,3 +29,12 @@ For each of them :
 - It will apply the Dbup migration scripts located in the directory (into an Sqlite in memory database).
 - It will generate the POCO classes mapping the schema tables.
 - The files will be written to `${ProjectDir}/Generated/${MigrationDirectoryName}` namespace.
+
+# Optional parameters :
+
+- `ScriptsDir` : The absolute directory where to search for DbUp migration scripts
+- `IdentityInterface` : An optional identity interface (with an Id property) for the matching class (with an unique id primary key) to implement. It is a generic class with a generic type parameter.
+
+# Example
+
+See provided Example.Service.csproj, except for you have to remove the UsingTask (it is used for the example project to work inside the same solution of the task)
