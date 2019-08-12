@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,11 +12,6 @@ namespace DbModelGenerator
 
         public static Column Parse(dynamic column)
         {
-            if (column.name.Equals("disabled"))
-            {
-                Console.WriteLine("CCCCCCCCCCCCCCCCC " + column);
-            }
-
             return new Column(column.name, ParseType(column.type), column.notnull == 0, column.pk > 0);
         }
 
