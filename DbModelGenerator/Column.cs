@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,6 +13,7 @@ namespace DbModelGenerator
 
         public static Column Parse(dynamic column)
         {
+            Console.WriteLine("Column {0}", column);
             return new Column(column.name, ParseType(column.type), column.notnull == 0, column.pk > 0);
         }
 
@@ -19,19 +21,44 @@ namespace DbModelGenerator
         {
             switch (datatype.ToLower())
             {
-                case "int": return "int";
+                case "serial":
+                case "int":
+                    return "int";
+
+                case "tinyint":
+                    return "byte";
+                
+                case "binary":
+                case "varbinary":
+                case "blob":
+                    return "byte[]";
+                
+                case "smallint":
+                    return "short";
+                
+                case "bigserial":
+                case "bigint":
+                    return "long";
 
                 case "real":
                 case "numeric":
                 case "decimal":
-                case "money": return "decimal";
+                case "double precision":
+                case "money":
+                    return "decimal";
 
-                case "uniqueidentifier": return "Guid";
+                case "uniqueidentifier":
+                    return "Guid";
 
-                case "datetime": return "DateTime";
+                case "date":
+                case "time":
+                case "timestamp":
+                case "datetime":
+                    return "DateTime";
 
                 case "bit":
-                case "boolean": return "bool";
+                case "boolean":
+                    return "bool";
 
                 default:
                     return "string";
