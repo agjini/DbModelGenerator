@@ -23,19 +23,20 @@ namespace DbModelGenerator
             {
                 case "serial":
                 case "int":
+                case "integer":
                     return "int";
 
                 case "tinyint":
                     return "byte";
-                
+
                 case "binary":
                 case "varbinary":
                 case "blob":
                     return "byte[]";
-                
+
                 case "smallint":
                     return "short";
-                
+
                 case "bigserial":
                 case "bigint":
                     return "long";
@@ -90,11 +91,6 @@ namespace DbModelGenerator
         public bool RequiresSystemUsing()
         {
             return Type.Equals("Guid") || Type.Equals("DateTime");
-        }
-
-        public override string ToString()
-        {
-            return base.ToString();
         }
     }
 }
