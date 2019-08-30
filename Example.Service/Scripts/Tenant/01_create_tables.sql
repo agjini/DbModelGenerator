@@ -10,6 +10,7 @@ CREATE TABLE user_profile
     salt      VARCHAR(128) NOT NULL,
     disabled  BOOLEAN      NOT NULL DEFAULT '0',
     groupId   TEXT         NOT NULL,
+    latitude  DECIMAL(10, 5),
     PRIMARY KEY (id)
 );
 

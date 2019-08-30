@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace DbModelGenerator
 {
@@ -19,7 +20,10 @@ namespace DbModelGenerator
 
         private static string ParseType(string datatype)
         {
-            switch (datatype.ToLower())
+            var match = Regex.Match(datatype, @"(\w+).*");
+            var value = match.Groups[1].Value;
+
+            switch (value.ToLower())
             {
                 case "serial":
                 case "int":
