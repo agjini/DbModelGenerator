@@ -7,7 +7,7 @@ namespace DbModelGenerator
 {
     public sealed class GenerateDbModel : Task
     {
-        public string IdentityInterface { get; set; }
+        public string PrimaryKeyAttribute { get; set; }
 
         public string ScriptsDir { get; set; }
 
@@ -26,10 +26,10 @@ namespace DbModelGenerator
             var scriptsPath = Path.Combine(projectPath, scriptsDirectory);
 
             Log.LogMessage("ProjectPath : " + projectPath);
-            Log.LogMessage("IdentityInterface : " + IdentityInterface);
+            Log.LogMessage("PrimaryKeyAttribute : " + PrimaryKeyAttribute);
             Log.LogMessage("ScriptsPath : " + scriptsPath);
             
-            GeneratedFiles = DbModelGenerator.Generate(projectPath, scriptsPath, IdentityInterface, Log);
+            GeneratedFiles = DbModelGenerator.Generate(projectPath, scriptsPath, PrimaryKeyAttribute, Log);
 
             return true;
         }

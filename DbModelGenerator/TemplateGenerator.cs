@@ -11,7 +11,7 @@ namespace DbModelGenerator
 {
     public sealed class TemplateGenerator
     {
-        public static IEnumerable<ITaskItem> Generate(Schema schema, string projectPath, string identityInterface,
+        public static IEnumerable<ITaskItem> Generate(Schema schema, string projectPath, string primaryKeyAttribute,
             TaskLoggingHelper log)
         {
             if (!schema.Tables.Any())
@@ -46,7 +46,7 @@ namespace DbModelGenerator
 
                 var ns = $"{Path.GetFileName(projectPath)}.Generated.Db.{scriptNamespace}";
 
-                var content = GenerateClass(ns, table, identityInterface);
+                var content = GenerateClass(ns, table, primaryKeyAttribute);
                 File.WriteAllText(outputFile, content, Encoding.UTF8);
 
                 taskItems.Add(new TaskItem(outputFile));
@@ -56,11 +56,11 @@ namespace DbModelGenerator
             return taskItems;
         }
 
-        public static string GenerateClass(string ns, Table table, string identityInterfaceParam)
+        public static string GenerateClass(string ns, Table table, string primaryKeyAttribute)
         {
             var className = ToPascalCase(table.Name);
 
-            var identityInterface = ParseIdentityInterface(identityInterfaceParam);
+            var primaryKeyAttributeClass = ParseClassName(primaryKeyAttribute);
             var contentBuilder = new StringBuilder();
 
             if (ColumnParser.RequiresSystemUsing(table.Columns))
@@ -68,24 +68,20 @@ namespace DbModelGenerator
                 contentBuilder.Append("using System;\n");
             }
 
-            var idColumn = table.Columns
-                .FirstOrDefault(c => c.IsPrimaryKey && c.Name.ToLower().Equals("id"));
+            var hasPrimaryKeys = table.Columns
+                .Any(c => c.IsPrimaryKey);
 
-            if (identityInterface != null && idColumn != null)
+            if (primaryKeyAttributeClass != null && hasPrimaryKeys)
             {
-                contentBuilder.Append($"using {identityInterface.Item1};\n");
+                contentBuilder.Append($"using {primaryKeyAttributeClass.Item1};\n");
             }
 
             contentBuilder.Append($"\nnamespace {ns}\n{{\n\n");
 
             contentBuilder.Append($"\tpublic sealed class {className}");
-            if (identityInterface != null && idColumn != null)
-            {
-                contentBuilder.Append($" : {identityInterface.Item2}<{idColumn.TypeAsString()}>");
-            }
 
             contentBuilder.Append("\n\t{\n\n");
-
+   
             var args = string.Join(", ", table.Columns.Select(c => $"{c.TypeAsString()} {c.Name}"));
 
             contentBuilder.Append($"\t\tpublic {className}({args})\n\t\t{{\n");
@@ -96,6 +92,12 @@ namespace DbModelGenerator
 
             foreach (var column in table.Columns)
             {
+                if (primaryKeyAttributeClass != null && column.IsPrimaryKey)
+                {
+                    contentBuilder.Append(
+                        $"\t\t[{primaryKeyAttributeClass.Item2}]\n");
+                }
+                Console.WriteLine("Column {0}, {1} => {2}",column, column.IsAutoIncrement, column.TypeAsString());
                 contentBuilder.Append(
                     $"\t\tpublic {column.TypeAsString()} {ToPascalCase(column.Name)} {{ get; }}\n\n");
             }
@@ -118,7 +120,7 @@ namespace DbModelGenerator
             return sb.ToString();
         }
 
-        private static Tuple<string, string> ParseIdentityInterface(string identityInterface)
+        private static Tuple<string, string> ParseClassName(string identityInterface)
         {
             if (identityInterface == null)
             {

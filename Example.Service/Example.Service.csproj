@@ -7,17 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Generated\**\*"/>
+        <Folder Include="Generated\**\*" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DbModelGenerator\DbModelGenerator.csproj"/>
+        <ProjectReference Include="..\DbModelGenerator\DbModelGenerator.csproj" />
     </ItemGroup>
 
-    <UsingTask TaskName="DbModelGenerator.GenerateDbModel" AssemblyFile="$(MSBuildThisFileDirectory)../DbModelGenerator/bin/Debug/netstandard2.0/DbModelGenerator.dll"/>
+    <UsingTask TaskName="DbModelGenerator.GenerateDbModel" AssemblyFile="$(MSBuildThisFileDirectory)../DbModelGenerator/bin/Debug/netstandard2.0/DbModelGenerator.dll" />
 
     <Target Name="Generate Db Model" BeforeTargets="BeforeBuild">
-        <GenerateDbModel IdentityInterface="Example.Service.IEntity"/>
+        <GenerateDbModel PrimaryKeyAttribute="Example.Service.PrimaryKey" />
     </Target>
 
 </Project> 

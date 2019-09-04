@@ -15,7 +15,13 @@ namespace DbModelGenerator
         public static Column Parse(dynamic column)
         {
             Console.WriteLine("Column {0}", column);
-            return new Column(column.name, ParseType(column.type), column.notnull == 0, column.pk > 0);
+            string type = ParseType(column.type);
+
+            Console.WriteLine("Column type {0}", column.type);
+            var isAutoIncrement = ((string) column.type).ToLower().Contains("serial");
+            Console.WriteLine("Column isAutoIncrement {0}", isAutoIncrement);
+
+            return new Column(column.name, type, column.notnull == 0, column.pk > 0, isAutoIncrement);
         }
 
         private static string ParseType(string datatype)
@@ -39,6 +45,7 @@ namespace DbModelGenerator
                     return "byte[]";
 
                 case "smallint":
+                case "smallserial":
                     return "short";
 
                 case "bigserial":
@@ -73,28 +80,35 @@ namespace DbModelGenerator
 
     public sealed class Column
     {
-        public Column(string name, string type, bool isNullable, bool isPrimaryKey)
+        public Column(string name, string type, bool isNullable, bool isPrimaryKey, bool isAutoIncrement)
         {
             Name = name;
             Type = type;
             IsNullable = isNullable;
             IsPrimaryKey = isPrimaryKey;
+            IsAutoIncrement = isAutoIncrement;
         }
 
         public string Name { get; }
         public string Type { get; }
         public bool IsNullable { get; }
         public bool IsPrimaryKey { get; }
+        public bool IsAutoIncrement { get; }
 
         public string TypeAsString()
         {
-            var n = IsNullable ? "?" : "";
+            var n = IsNullable || IsAutoIncrement ? "?" : "";
             return $"{Type}{n}";
         }
 
         public bool RequiresSystemUsing()
         {
             return Type.Equals("Guid") || Type.Equals("DateTime");
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

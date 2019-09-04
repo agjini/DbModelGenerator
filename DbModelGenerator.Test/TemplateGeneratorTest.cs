@@ -13,7 +13,7 @@ namespace DbModelGenerator.Test
         [Test]
         public void GenerateAClassForOneTable()
         {
-            var table = new Table("user_profile", new[] {new Column("id", "string", false, true)});
+            var table = new Table("user_profile", new[] {new Column("id", "string", false, true, false)});
 
             var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null);
 
@@ -42,13 +42,13 @@ namespace Project.Generated.Global
         [Test]
         public void GenerateAClassForOneTableWithUsing()
         {
-	        var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true)});
+            var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true, false)});
 
-	        var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null);
+            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null);
 
-	        Console.WriteLine(actual);
+            Console.WriteLine(actual);
 
-	        const string expected = @"using System;
+            const string expected = @"using System;
 
 namespace Project.Generated.Global
 {
@@ -66,20 +66,20 @@ namespace Project.Generated.Global
 	}
 
 }";
-	        Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
-        
-        
+
+
         [Test]
         public void GenerateAClassForOneTableWithUsingAndIdentity()
         {
-	        var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true)});
+            var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true, false)});
 
-	        var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity");
+            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity");
 
-	        Console.WriteLine(actual);
+            Console.WriteLine(actual);
 
-	        const string expected = @"using System;
+            const string expected = @"using System;
 using Odin.Api;
 
 namespace Project.Generated.Global
@@ -98,19 +98,23 @@ namespace Project.Generated.Global
 	}
 
 }";
-	        Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
-        
+
         [Test]
         public void GenerateAClassForOneTableWithUsingAndIdentityWithoutId()
         {
-	        var table = new Table("user_profile", new[] {new Column("roleId", "Guid", false, true),new Column("groupId", "Guid", false, true)});
+            var table = new Table("user_profile",
+                new[]
+                {
+                    new Column("roleId", "Guid", false, true, false), new Column("groupId", "Guid", false, true, false)
+                });
 
-	        var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity");
+            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity");
 
-	        Console.WriteLine(actual);
+            Console.WriteLine(actual);
 
-	        const string expected = @"using System;
+            const string expected = @"using System;
 
 namespace Project.Generated.Global
 {
@@ -131,7 +135,7 @@ namespace Project.Generated.Global
 	}
 
 }";
-	        Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
     }
 }

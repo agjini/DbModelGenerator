@@ -1,6 +1,6 @@
 CREATE TABLE user_profile
 (
-    id        TEXT         NOT NULL,
+    id        SERIAL       NOT NULL,
     email     VARCHAR(255) NOT NULL,
     firstName VARCHAR(255) NOT NULL,
     lastName  VARCHAR(255) NOT NULL,
@@ -20,7 +20,6 @@ CREATE TABLE user_group
     PRIMARY KEY (id)
 );
 
-
 CREATE TABLE role
 (
     id TEXT NOT NULL,
@@ -30,7 +29,7 @@ CREATE TABLE role
 CREATE TABLE user_group_role
 (
     groupId TEXT NOT NULL,
-    roleId  TEXT NOT NULL,
+    roleId  INTEGER NOT NULL,
     PRIMARY KEY (groupId, roleId)
 );
 

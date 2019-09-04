@@ -5,7 +5,7 @@ dotnet core msbuild task which generate POCO classes from db up migration files.
 This task make the perfect fit to be used in conjunction with Dapper and DapperExtensions and DbUp.
 
 It allows to make a real database first approach on your project.
-A good practice is not to add the generated classes to your SCM (by adding Generated/ forlder to .gitignore for example), because they will be (re)generated before each build.
+A good practice is not to add the generated classes to your SCM (by adding Generated/ folder to `.gitignore` for example), because they will be (re)generated before each build.
 
 # How to use it
 
@@ -13,7 +13,7 @@ In your .csproj file simply add the reference to the nuget assembly:
 
 ```xml
     <ItemGroup>
-        <PackageReference Include="DbModelGenerator" Version="0.1.5"/>
+        <PackageReference Include="DbModelGenerator" Version="0.1.6"/>
     </ItemGroup>
 ```
 
