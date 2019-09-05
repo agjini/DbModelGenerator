@@ -7,6 +7,8 @@ namespace DbModelGenerator
 {
     public sealed class GenerateDbModel : Task
     {
+        public string EntityInterface { get; set; }
+        
         public string PrimaryKeyAttribute { get; set; }
 
         public string ScriptsDir { get; set; }
@@ -29,7 +31,7 @@ namespace DbModelGenerator
             Log.LogMessage("PrimaryKeyAttribute : " + PrimaryKeyAttribute);
             Log.LogMessage("ScriptsPath : " + scriptsPath);
             
-            GeneratedFiles = DbModelGenerator.Generate(projectPath, scriptsPath, PrimaryKeyAttribute, Log);
+            GeneratedFiles = DbModelGenerator.Generate(projectPath, scriptsPath, EntityInterface, PrimaryKeyAttribute, Log);
 
             return true;
         }
