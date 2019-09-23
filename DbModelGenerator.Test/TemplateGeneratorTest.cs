@@ -15,7 +15,7 @@ namespace DbModelGenerator.Test
         {
             var table = new Table("user_profile", new[] {new Column("id", "string", false, true, false)});
 
-            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null);
+            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null);
 
             Console.WriteLine(actual);
 
@@ -44,7 +44,7 @@ namespace Project.Generated.Global
         {
             var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true, false)});
 
-            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null);
+            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null);
 
             Console.WriteLine(actual);
 
@@ -75,7 +75,8 @@ namespace Project.Generated.Global
         {
             var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true, false)});
 
-            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null);
+            var actual =
+                TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null);
 
             Console.WriteLine(actual);
 
@@ -110,7 +111,8 @@ namespace Project.Generated.Global
                     new Column("roleId", "Guid", false, true, false), new Column("groupId", "Guid", false, true, false)
                 });
 
-            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null);
+            var actual =
+                TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null);
 
             Console.WriteLine(actual);
 

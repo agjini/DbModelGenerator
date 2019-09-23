@@ -9,7 +9,7 @@ namespace DbModelGenerator
     public sealed class DbModelGenerator
     {
         public static ITaskItem[] Generate(string projectPath, string scriptsPath, string entityInterface,
-            string primaryKeyAttribute, TaskLoggingHelper log)
+            string primaryKeyAttribute, string autoIncrementAttribute, TaskLoggingHelper log)
         {
             if (!Directory.Exists(projectPath))
             {
@@ -23,7 +23,7 @@ namespace DbModelGenerator
 
             return Directory.GetDirectories(scriptsPath)
                 .Select(d => ReadSchema(d, projectPath, log))
-                .SelectMany(d => TemplateGenerator.Generate(d, projectPath, entityInterface, primaryKeyAttribute, log))
+                .SelectMany(d => TemplateGenerator.Generate(d, projectPath, entityInterface, primaryKeyAttribute, autoIncrementAttribute,log))
                 .ToArray();
         }
 

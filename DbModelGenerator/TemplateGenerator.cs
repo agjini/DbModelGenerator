@@ -12,7 +12,7 @@ namespace DbModelGenerator
     public sealed class TemplateGenerator
     {
         public static IEnumerable<ITaskItem> Generate(Schema schema, string projectPath, string entityInterface,
-            string primaryKeyAttribute, TaskLoggingHelper log)
+            string primaryKeyAttribute, string autoIncrementAttribute, TaskLoggingHelper log)
         {
             if (!schema.Tables.Any())
             {
@@ -46,7 +46,7 @@ namespace DbModelGenerator
 
                 var ns = $"{Path.GetFileName(projectPath)}.Generated.Db.{scriptNamespace}";
 
-                var content = GenerateClass(ns, table, entityInterface, primaryKeyAttribute);
+                var content = GenerateClass(ns, table, entityInterface, primaryKeyAttribute, autoIncrementAttribute);
                 File.WriteAllText(outputFile, content, Encoding.UTF8);
 
                 taskItems.Add(new TaskItem(outputFile));
@@ -56,12 +56,14 @@ namespace DbModelGenerator
             return taskItems;
         }
 
-        public static string GenerateClass(string ns, Table table, string entityInterface, string primaryKeyAttribute)
+        public static string GenerateClass(string ns, Table table, string entityInterface, string primaryKeyAttribute,
+            string autoIncrementAttribute)
         {
             var className = ToPascalCase(table.Name);
 
             var entityInterfaceClass = ParseClassName(entityInterface);
             var primaryKeyAttributeClass = ParseClassName(primaryKeyAttribute);
+            var autoIncrementAttributeClass = ParseClassName(autoIncrementAttribute);
             var contentBuilder = new StringBuilder();
 
             if (ColumnParser.RequiresSystemUsing(table.Columns))
@@ -80,11 +82,24 @@ namespace DbModelGenerator
                 contentBuilder.Append($"using {entityInterfaceClass.Item1};\n");
             }
 
-            if (primaryKeyAttributeClass != null && hasPrimaryKeys && (entityInterfaceClass == null ||
-                                                                       !primaryKeyAttributeClass.Item1.Equals(
-                                                                           entityInterfaceClass.Item1)))
+            if (primaryKeyAttributeClass != null && hasPrimaryKeys)
             {
-                contentBuilder.Append($"using {primaryKeyAttributeClass.Item1};\n");
+                if (entityInterfaceClass == null || !primaryKeyAttributeClass.Item1.Equals(entityInterfaceClass.Item1))
+                {
+                    contentBuilder.Append($"using {primaryKeyAttributeClass.Item1};\n");
+                }
+
+                var hasAutoIncrementKeys = table.Columns
+                    .Any(c => c.IsAutoIncrement);
+
+                if (autoIncrementAttributeClass != null
+                    && hasAutoIncrementKeys
+                    && (entityInterfaceClass == null ||
+                        !autoIncrementAttributeClass.Item1.Equals(entityInterfaceClass.Item1))
+                    && !autoIncrementAttributeClass.Item1.Equals(primaryKeyAttributeClass.Item1))
+                {
+                    contentBuilder.Append($"using {autoIncrementAttributeClass.Item1};\n");
+                }
             }
 
             contentBuilder.Append($"\nnamespace {ns}\n{{\n\n");
@@ -111,6 +126,12 @@ namespace DbModelGenerator
                 {
                     contentBuilder.Append(
                         $"\t\t[{primaryKeyAttributeClass.Item2}]\n");
+                }
+
+                if (autoIncrementAttributeClass != null && column.IsAutoIncrement)
+                {
+                    contentBuilder.Append(
+                        $"\t\t[{autoIncrementAttributeClass.Item2}]\n");
                 }
 
                 Console.WriteLine("Column {0}, {1} => {2}", column, column.IsAutoIncrement, column.TypeAsString());
