@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageId>DbModelGenerator</PackageId>
-        <Version>0.1.8</Version>
+        <Version>0.1.9</Version>
         <Authors>Augustin Gjini</Authors>
         <Company>Synergee</Company>
         <IsPackable>true</IsPackable>
@@ -28,6 +28,10 @@
         <!-- pack the props files -->
         <Content Include="build\*" PackagePath="build\"/>
         <Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\"/>
+
+        <Content Include="runtimes\linux-x64\native\libsqlite3.so" Pack="true" PackagePath="tasks\$(TargetFramework)\libsqlite3.so"/>
+        <Content Include="runtimes\osx-x64\native\libsqlite3.dylib" Pack="true" PackagePath="tasks\$(TargetFramework)\libsqlite3.dylib"/>
+        <Content Include="runtimes\win10-x64\nativeassets\uap10.0\sqlite3.dll" Pack="true" PackagePath="tasks\$(TargetFramework)\sqlite3.dll"/>
     </ItemGroup>
 
     <ItemGroup>
