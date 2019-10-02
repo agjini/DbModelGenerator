@@ -8,22 +8,21 @@ namespace DbModelGenerator
 {
     public sealed class DbModelGenerator
     {
-        public static ITaskItem[] Generate(string projectPath, string scriptsPath, string entityInterface,
-            string primaryKeyAttribute, string autoIncrementAttribute, TaskLoggingHelper log)
+        public static ITaskItem[] Generate(Parameters parameters, TaskLoggingHelper log)
         {
-            if (!Directory.Exists(projectPath))
+            if (!Directory.Exists(parameters.ProjectPath))
             {
-                throw new ArgumentException($"Project '{projectPath}' does not exist !");
+                throw new ArgumentException($"Project '{parameters.ProjectPath}' does not exist !");
             }
 
-            if (!Directory.Exists(scriptsPath))
+            if (!Directory.Exists(parameters.ScriptsPath))
             {
-                throw new ArgumentException($"Project scripts path '{scriptsPath}' does not exist !");
+                throw new ArgumentException($"Project scripts path '{parameters.ScriptsPath}' does not exist !");
             }
 
-            return Directory.GetDirectories(scriptsPath)
-                .Select(d => ReadSchema(d, projectPath, log))
-                .SelectMany(d => TemplateGenerator.Generate(d, projectPath, entityInterface, primaryKeyAttribute, autoIncrementAttribute,log))
+            return Directory.GetDirectories(parameters.ScriptsPath)
+                .Select(d => ReadSchema(d, parameters.ProjectPath, log))
+                .SelectMany(d => TemplateGenerator.Generate(d, parameters, log))
                 .ToArray();
         }
 

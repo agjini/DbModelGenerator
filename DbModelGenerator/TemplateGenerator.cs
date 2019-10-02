@@ -11,8 +11,7 @@ namespace DbModelGenerator
 {
     public sealed class TemplateGenerator
     {
-        public static IEnumerable<ITaskItem> Generate(Schema schema, string projectPath, string entityInterface,
-            string primaryKeyAttribute, string autoIncrementAttribute, TaskLoggingHelper log)
+        public static IEnumerable<ITaskItem> Generate(Schema schema, Parameters parameters, TaskLoggingHelper log)
         {
             if (!schema.Tables.Any())
             {
@@ -26,7 +25,7 @@ namespace DbModelGenerator
                 throw new ArgumentException($"Project script namespace not found for '{schema.ScriptDirectory}' !");
             }
 
-            var generatedPath = Path.Combine(projectPath, "Generated", "Db", scriptNamespace);
+            var generatedPath = Path.Combine(parameters.ProjectPath, "Generated", "Db", scriptNamespace);
             try
             {
                 Directory.Delete(generatedPath, true);
@@ -44,9 +43,10 @@ namespace DbModelGenerator
 
                 var outputFile = Path.Combine(generatedPath, $"{className}.cs");
 
-                var ns = $"{Path.GetFileName(projectPath)}.Generated.Db.{scriptNamespace}";
+                var ns = $"{Path.GetFileName(parameters.ProjectPath)}.Generated.Db.{scriptNamespace}";
 
-                var content = GenerateClass(ns, table, entityInterface, primaryKeyAttribute, autoIncrementAttribute);
+                var content = GenerateClass(ns, table, parameters.EntityInterface, parameters.PrimaryKeyAttribute,
+                    parameters.AutoIncrementAttribute, parameters.Suffix);
                 File.WriteAllText(outputFile, content, Encoding.UTF8);
 
                 taskItems.Add(new TaskItem(outputFile));
@@ -57,9 +57,10 @@ namespace DbModelGenerator
         }
 
         public static string GenerateClass(string ns, Table table, string entityInterface, string primaryKeyAttribute,
-            string autoIncrementAttribute)
+            string autoIncrementAttribute, string suffix)
         {
-            var className = ToPascalCase(table.Name);
+            var s = suffix != null ? $"_{suffix}" : "";
+            var className = ToPascalCase(table.Name + s);
 
             var entityInterfaceClass = ParseClassName(entityInterface);
             var primaryKeyAttributeClass = ParseClassName(primaryKeyAttribute);

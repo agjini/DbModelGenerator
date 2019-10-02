@@ -15,7 +15,7 @@ namespace DbModelGenerator.Test
         {
             var table = new Table("user_profile", new[] {new Column("id", "string", false, true, false)});
 
-            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null);
+            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "db");
 
             Console.WriteLine(actual);
 
@@ -23,10 +23,10 @@ namespace DbModelGenerator.Test
 namespace Project.Generated.Global
 {
 
-	public sealed class UserProfile
+	public sealed class UserProfileDb
 	{
 
-		public UserProfile(string id)
+		public UserProfileDb(string id)
 		{
 			Id = id;
 		}
@@ -44,7 +44,7 @@ namespace Project.Generated.Global
         {
             var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true, false)});
 
-            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null);
+            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "Db");
 
             Console.WriteLine(actual);
 
@@ -53,10 +53,10 @@ namespace Project.Generated.Global
 namespace Project.Generated.Global
 {
 
-	public sealed class UserProfile
+	public sealed class UserProfileDb
 	{
 
-		public UserProfile(Guid id)
+		public UserProfileDb(Guid id)
 		{
 			Id = id;
 		}
@@ -76,7 +76,8 @@ namespace Project.Generated.Global
             var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true, false)});
 
             var actual =
-                TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null);
+                TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null,
+                    "Db");
 
             Console.WriteLine(actual);
 
@@ -86,10 +87,10 @@ using Odin.Api;
 namespace Project.Generated.Global
 {
 
-	public sealed class UserProfile : IIdentity<Guid>
+	public sealed class UserProfileDb : IIdentity<Guid>
 	{
 
-		public UserProfile(Guid id)
+		public UserProfileDb(Guid id)
 		{
 			Id = id;
 		}
@@ -112,7 +113,8 @@ namespace Project.Generated.Global
                 });
 
             var actual =
-                TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null);
+                TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null,
+                    null);
 
             Console.WriteLine(actual);
 

@@ -3,7 +3,7 @@
 rm -Rf DbModelGenerator/bin
 rm -Rf DbModelGenerator/obj
 
-dotnet build -p DbModelGenerator/DbModelGenerator.csproj
+dotnet build DbModelGenerator/DbModelGenerator.csproj
 
 dotnet build -c Release
 

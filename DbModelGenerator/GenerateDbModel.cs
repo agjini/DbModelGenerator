@@ -8,10 +8,12 @@ namespace DbModelGenerator
     public sealed class GenerateDbModel : Task
     {
         public string EntityInterface { get; set; }
-        
+
         public string PrimaryKeyAttribute { get; set; }
-        
+
         public string AutoIncrementAttribute { get; set; }
+
+        public string Suffix { get; set; }
 
         public string ScriptsDir { get; set; }
 
@@ -29,12 +31,11 @@ namespace DbModelGenerator
 
             var scriptsPath = Path.Combine(projectPath, scriptsDirectory);
 
-            Log.LogMessage("ProjectPath : " + projectPath);
-            Log.LogMessage("PrimaryKeyAttribute : " + PrimaryKeyAttribute);
-            Log.LogMessage("AutoIncrementAttribute : " + AutoIncrementAttribute);
-            Log.LogMessage("ScriptsPath : " + scriptsPath);
-            
-            GeneratedFiles = DbModelGenerator.Generate(projectPath, scriptsPath, EntityInterface, PrimaryKeyAttribute, AutoIncrementAttribute, Log);
+            var parameters = new Parameters(EntityInterface, PrimaryKeyAttribute, AutoIncrementAttribute, Suffix,
+                projectPath, scriptsPath);
+            Log.LogMessage("GeneraDbModel parameters:\n", parameters);
+
+            GeneratedFiles = DbModelGenerator.Generate(parameters, Log);
 
             return true;
         }
