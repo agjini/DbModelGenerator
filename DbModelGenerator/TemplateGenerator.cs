@@ -39,7 +39,7 @@ namespace DbModelGenerator
             var taskItems = new List<ITaskItem>();
             foreach (var table in schema.Tables)
             {
-                var className = ToPascalCase(table.Name);
+                var className = GetClassName(table, parameters.Suffix);
 
                 var outputFile = Path.Combine(generatedPath, $"{className}.cs");
 
@@ -59,8 +59,7 @@ namespace DbModelGenerator
         public static string GenerateClass(string ns, Table table, string entityInterface, string primaryKeyAttribute,
             string autoIncrementAttribute, string suffix)
         {
-            var s = suffix != null ? $"_{suffix}" : "";
-            var className = ToPascalCase(table.Name + s);
+            var className = GetClassName(table, suffix);
 
             var entityInterfaceClass = ParseClassName(entityInterface);
             var primaryKeyAttributeClass = ParseClassName(primaryKeyAttribute);
@@ -143,6 +142,13 @@ namespace DbModelGenerator
             contentBuilder.Append("\t}\n\n}");
             var content = contentBuilder.ToString();
             return content;
+        }
+
+        private static string GetClassName(Table table, string suffix)
+        {
+            var s = suffix != null ? $"_{suffix}" : "";
+            var className = ToPascalCase(table.Name + s);
+            return className;
         }
 
         private static string ToPascalCase(string s)

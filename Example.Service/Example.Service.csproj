@@ -17,7 +17,7 @@
     <UsingTask TaskName="DbModelGenerator.GenerateDbModel" AssemblyFile="$(MSBuildThisFileDirectory)../DbModelGenerator/bin/Debug/netstandard2.0/DbModelGenerator.dll"/>
 
     <Target Name="Generate Db Model" BeforeTargets="BeforeBuild">
-        <GenerateDbModel EntityInterface="Example.Service.IEntity" PrimaryKeyAttribute="Example.Service.PrimaryKey" AutoIncrementAttribute="Example.Service.AutoIncrement"/>
+        <GenerateDbModel EntityInterface="Example.Service.IEntity" PrimaryKeyAttribute="Example.Service.PrimaryKey" AutoIncrementAttribute="Example.Service.AutoIncrement" Suffix="Db"/>
     </Target>
 
 </Project> 
