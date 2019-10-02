@@ -16,4 +16,8 @@
         <ProjectReference Include="..\DbModelGenerator\DbModelGenerator.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <EmbeddedResource Include="Fixtures\*.sql"/>
+    </ItemGroup>
+
 </Project>

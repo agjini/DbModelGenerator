@@ -1,7 +1,9 @@
 using System;
+using DbModelGenerator.Preprocessor;
 using DbUp;
 using DbUp.Builder;
 using DbUp.Engine.Output;
+using DbUp.SQLite;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.Data.Sqlite;
@@ -28,6 +30,8 @@ namespace DbModelGenerator
         {
             var upgrader = engineBuilder
                 .WithScriptsFromFileSystem(path)
+                .WithPreprocessor(new DdlPreprocessor())
+                .WithPreprocessor(new SQLitePreprocessor())
                 .WithTransaction()
                 .LogTo(new DbUpgradeLogger(log))
                 .Build();
