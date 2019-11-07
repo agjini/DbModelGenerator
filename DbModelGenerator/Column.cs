@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -14,13 +13,8 @@ namespace DbModelGenerator
 
         public static Column Parse(dynamic column)
         {
-            Console.WriteLine("Column {0}", column);
             string type = ParseType(column.type);
-
-            Console.WriteLine("Column type {0}", column.type);
             var isAutoIncrement = ((string) column.type).ToLower().Contains("serial");
-            Console.WriteLine("Column isAutoIncrement {0}", isAutoIncrement);
-
             return new Column(column.name, type, column.notnull == 0, column.pk > 0, isAutoIncrement);
         }
 

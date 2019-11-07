@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 
 namespace DbModelGenerator.Test
@@ -16,8 +15,6 @@ namespace DbModelGenerator.Test
             var table = new Table("user_profile", new[] {new Column("id", "string", false, true, false)});
 
             var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "db");
-
-            Console.WriteLine(actual);
 
             const string expected = @"
 namespace Project.Generated.Global
@@ -45,8 +42,6 @@ namespace Project.Generated.Global
             var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true, false)});
 
             var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "Db");
-
-            Console.WriteLine(actual);
 
             const string expected = @"using System;
 
@@ -78,8 +73,6 @@ namespace Project.Generated.Global
             var actual =
                 TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null,
                     "Db");
-
-            Console.WriteLine(actual);
 
             const string expected = @"using System;
 using Odin.Api;
@@ -115,8 +108,6 @@ namespace Project.Generated.Global
             var actual =
                 TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null,
                     null);
-
-            Console.WriteLine(actual);
 
             const string expected = @"using System;
 
