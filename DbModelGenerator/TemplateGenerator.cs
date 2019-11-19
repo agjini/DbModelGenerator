@@ -134,7 +134,6 @@ namespace DbModelGenerator
                         $"\t\t[{autoIncrementAttributeClass.Item2}]\n");
                 }
 
-                Console.WriteLine("Column {0}, {1} => {2}", column, column.IsAutoIncrement, column.TypeAsString());
                 contentBuilder.Append(
                     $"\t\tpublic {column.TypeAsString()} {ToPascalCase(column.Name)} {{ get; }}\n\n");
             }

@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageId>DbModelGenerator</PackageId>
-        <Version>0.2.2</Version>
+        <Version>0.2.3</Version>
         <Authors>Augustin Gjini</Authors>
         <Company>Synergee</Company>
         <IsPackable>true</IsPackable>
