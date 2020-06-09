@@ -20,8 +20,8 @@
         <!-- PrimaryKeyAttribute (optional) -->
         <!-- AutoIncrementAttribute (optional) -->
         <!-- Suffix (optional) -->
-        <!-- By default SQL scripts will be searched into Scripts project sub-folder -->
-        <!-- By default classes will be generated into Generated project sub-folder -->
+        <!-- ScriptsDir (optional) : b default SQL scripts will be searched into Scripts project sub-folder -->
+        <!-- Output classes will be generated into Generated project sub-folder -->
         <GenerateDbModel
                 EntityInterface="Example.Service.IEntity"
                 PrimaryKeyAttribute="Example.Service.PrimaryKey"
