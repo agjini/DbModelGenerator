@@ -36,8 +36,11 @@ For each of them :
 # Optional parameters :
 
 - `ScriptsDir` : The absolute directory where to search for DbUp migration scripts
-- `IdentityInterface` : An optional identity interface (with an Id property) for the matching class (with an unique id primary key) to implement. It is a generic class with a generic type parameter.
+- `EntityInterface` : An optional C# interface (with an Id property) for the matching class (with an unique id primary key) to implement. It is a generic class with a generic type parameter.
+- `PrimaryKeyAttribute` : A C# attribute class to mark primary keys properties with.
+- `AutoIncrementAttribute` : A C# attribute class to mark auto increment properties with.
+- `Suffix` : A text suffix to appen to generated class names.
 
 # Example
 
-See provided Example.Service.csproj, except for you have to remove the UsingTask (it is used for the example project to work inside the same solution of the task)
+See provided `Example.Service.csproj` for example
