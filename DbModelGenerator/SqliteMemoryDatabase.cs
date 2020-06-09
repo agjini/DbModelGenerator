@@ -21,7 +21,7 @@ namespace DbModelGenerator
 
         public void UpdgradeSchema(string path, string database, TaskLoggingHelper log)
         {
-            var engineBuilder = DeployChanges.To.SQLiteDatabase(NewConnectionString(database));
+            var engineBuilder = DeployChanges.To.SQLiteDatabase(NewConnectionString(database, log));
             PerformUpdgrade(path, database, engineBuilder, log);
         }
 
@@ -30,6 +30,7 @@ namespace DbModelGenerator
         {
             var upgrader = engineBuilder
                 .WithScriptsFromFileSystem(path)
+                .WithVariablesDisabled()
                 .WithPreprocessor(new DdlPreprocessor())
                 .WithPreprocessor(new SQLitePreprocessor())
                 .WithTransaction()
@@ -42,20 +43,21 @@ namespace DbModelGenerator
             }
         }
 
-        public SqliteConnection NewConnection(string database)
+        public SqliteConnection NewConnection(string database, TaskLoggingHelper log)
         {
-            var connectionString = NewConnectionString(database);
+            var connectionString = NewConnectionString(database, log);
             return new SqliteConnection(connectionString);
         }
 
-        private string NewConnectionString(string database)
+        private string NewConnectionString(string database, TaskLoggingHelper log)
         {
             var builder = new SqliteConnectionStringBuilder
             {
-                DataSource = $"{databasePath}/{database}.db", Mode = SqliteOpenMode.ReadWriteCreate,
+                DataSource = $"{databasePath}/{database}.db",
+                Mode = SqliteOpenMode.ReadWriteCreate,
                 Cache = SqliteCacheMode.Shared
             };
-
+            log.LogMessage($"Connection : {builder}", builder);
             return builder.ConnectionString;
         }
     }

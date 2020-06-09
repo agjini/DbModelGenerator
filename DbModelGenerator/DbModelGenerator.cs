@@ -21,16 +21,16 @@ namespace DbModelGenerator
             }
 
             return Directory.GetDirectories(parameters.ScriptsPath)
-                .Select(d => ReadSchema(d, parameters.ProjectPath, log))
+                .Select(d => ReadSchema(d, log))
                 .SelectMany(d => TemplateGenerator.Generate(d, parameters, log))
                 .ToArray();
         }
 
-        private static Schema ReadSchema(string scriptDirectory, string projectPath, TaskLoggingHelper log)
+        public static Schema ReadSchema(string scriptDirectory, TaskLoggingHelper log)
         {
             using (var dbSchemaReader = new DbSchemaReader())
             {
-                return dbSchemaReader.Read(projectPath, scriptDirectory, log);
+                return dbSchemaReader.Read(scriptDirectory, log);
             }
         }
     }

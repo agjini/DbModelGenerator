@@ -84,7 +84,7 @@ CREATE TABLE country
 
 INSERT INTO country (id, name, code, default_currency_id)
 VALUES (1, 'Belgium', 'BE', '1'),
-       (2, 'France', 'FR', '1'),
+       (2, 'France', '$TEST_VAR$', '1'),
        (4, 'Luxembourg', 'LU', '1'),
        (5, 'Netherlands', 'NL', '1');
 

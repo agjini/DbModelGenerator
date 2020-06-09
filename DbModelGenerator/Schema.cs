@@ -13,5 +13,6 @@ namespace DbModelGenerator
         public string ScriptDirectory { get; }
 
         public IEnumerable<Table> Tables { get; }
+        
     }
 }

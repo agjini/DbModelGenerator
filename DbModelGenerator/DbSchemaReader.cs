@@ -19,13 +19,8 @@ namespace DbModelGenerator
             database = new SqliteMemoryDatabase(directoryInfo.FullName);
         }
 
-        public Schema Read(string projectPath, string scriptDirectory, TaskLoggingHelper log)
+        public Schema Read(string scriptDirectory, TaskLoggingHelper log)
         {
-            if (!Directory.Exists(projectPath))
-            {
-                throw new ArgumentException($"Project '{projectPath}' does not exist !");
-            }
-
             var ignore = new[] {"SchemaVersions", "sqlite_sequence"};
 
             var scriptNamespace = Path.GetFileName(scriptDirectory);
@@ -37,7 +32,7 @@ namespace DbModelGenerator
 
             database.UpdgradeSchema(scriptDirectory, scriptNamespace, log);
 
-            using (var connection = database.NewConnection(scriptNamespace))
+            using (var connection = database.NewConnection(scriptNamespace, log))
             {
                 connection.Open();
 

@@ -1,3 +1,4 @@
+using System;
 using Odin.Api.Util;
 
 namespace DbModelGenerator
@@ -11,8 +12,8 @@ namespace DbModelGenerator
             PrimaryKeyAttribute = primaryKeyAttribute;
             AutoIncrementAttribute = autoIncrementAttribute;
             Suffix = suffix;
-            ProjectPath = projectPath;
-            ScriptsPath = scriptsPath;
+            ProjectPath = projectPath ?? throw new ArgumentNullException(nameof(projectPath));
+            ScriptsPath = scriptsPath ?? throw new ArgumentNullException(nameof(scriptsPath));
         }
 
         public string EntityInterface { get; }

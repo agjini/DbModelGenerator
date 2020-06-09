@@ -7,5 +7,5 @@ dotnet build DbModelGenerator/DbModelGenerator.csproj
 
 dotnet build -c Release
 
-dotnet nuget push DbModelGenerator/bin/Release/*.nupkg -k oy2gtjnfmjscinvysijq2kitgf4ksacennwwuqcwgcaj2a -s https://api.nuget.org/v3/index.json
+dotnet nuget push DbModelGenerator/bin/Release/*.nupkg -k oy2ohsyqqinqyjkdvdcq44743cnzilkezneur75tgky2gi -s https://api.nuget.org/v3/index.json
 

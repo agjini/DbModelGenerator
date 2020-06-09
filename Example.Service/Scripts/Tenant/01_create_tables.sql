@@ -34,7 +34,7 @@ CREATE TABLE user_group_role
 );
 
 INSERT INTO user_profile (id, email, firstName, lastName, password, algorithm, balance, salt, disabled, groupId)
-VALUES ('6A179F89-A670-4CD4-9798-DE6E43A523FA', 'support@retaildrive.com', 'Support', 'Person',
+VALUES ('6A179F89-A670-4CD4-9798-DE6E43A523FA', '$TEST_VAR$', 'Support', 'Person',
         'XXX', 1, 'YYY', 36.53, '0', '202dc160-e4bd-4925-a6c3-86432faa7e12');
 
 INSERT INTO user_group (id)

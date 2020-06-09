@@ -11,13 +11,23 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DbModelGenerator\DbModelGenerator.csproj"/>
+        <PackageReference Include="DbModelGenerator" Version="0.2.4"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0"/>
     </ItemGroup>
 
-    <UsingTask TaskName="DbModelGenerator.GenerateDbModel" AssemblyFile="$(MSBuildThisFileDirectory)../DbModelGenerator/bin/Debug/netstandard2.0/DbModelGenerator.dll"/>
-
     <Target Name="Generate Db Model" BeforeTargets="BeforeBuild">
-        <GenerateDbModel EntityInterface="Example.Service.IEntity" PrimaryKeyAttribute="Example.Service.PrimaryKey" AutoIncrementAttribute="Example.Service.AutoIncrement" Suffix="Db"/>
+        <!-- EntityInterface (optional) -->
+        <!-- PrimaryKeyAttribute (optional) -->
+        <!-- AutoIncrementAttribute (optional) -->
+        <!-- Suffix (optional) -->
+        <!-- By default SQL scripts will be searched into Scripts project sub-folder -->
+        <!-- By default classes will be generated into Generated project sub-folder -->
+        <GenerateDbModel
+                EntityInterface="Example.Service.IEntity"
+                PrimaryKeyAttribute="Example.Service.PrimaryKey"
+                AutoIncrementAttribute="Example.Service.AutoIncrement"
+                Suffix="Db"
+        />
     </Target>
 
 </Project> 
