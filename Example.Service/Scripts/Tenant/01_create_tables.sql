@@ -1,16 +1,16 @@
 CREATE TABLE user_profile
 (
-    id        SERIAL       NOT NULL,
-    email     VARCHAR(255) NOT NULL,
-    firstName VARCHAR(255) NOT NULL,
-    lastName  VARCHAR(255) NOT NULL,
-    password  VARCHAR(128) NOT NULL,
-    algorithm INT          NOT NULL,
-    balance   REAL         NOT NULL,
-    salt      VARCHAR(128) NOT NULL,
-    disabled  BOOLEAN      NOT NULL DEFAULT '0',
-    groupId   TEXT         NOT NULL,
-    latitude  DECIMAL(10, 5),
+    id          SERIAL       NOT NULL,
+    email       VARCHAR(255) NOT NULL,
+    firstName   VARCHAR(255) NOT NULL,
+    lastName    VARCHAR(255) NOT NULL,
+    password    VARCHAR(128) NOT NULL,
+    algorithm   INT          NOT NULL,
+    balanceTYPO REAL         NOT NULL,
+    salt        VARCHAR(128) NOT NULL,
+    disabled    BOOLEAN      NOT NULL DEFAULT '0',
+    groupId     TEXT         NOT NULL,
+    latitude    DECIMAL(10, 5),
     PRIMARY KEY (id)
 );
 
@@ -28,7 +28,7 @@ CREATE TABLE role
 
 CREATE TABLE user_group_role
 (
-    groupId TEXT NOT NULL,
+    groupId TEXT    NOT NULL,
     roleId  INTEGER NOT NULL,
     PRIMARY KEY (groupId, roleId)
 );
