@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using NUnit.Framework;
 
 namespace DbModelGenerator.Test
@@ -12,7 +13,8 @@ namespace DbModelGenerator.Test
         [Test]
         public void GenerateAClassForOneTable()
         {
-            var table = new Table("user_profile", new[] {new Column("id", "string", false, true, false)});
+            var table = new Table("user_profile",
+                new[] {new Column("id", "string", false, true, false)}.ToImmutableList());
 
             var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "db");
 
@@ -39,7 +41,8 @@ namespace Project.Generated.Global
         [Test]
         public void GenerateAClassForOneTableWithUsing()
         {
-            var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true, false)});
+            var table = new Table("user_profile",
+                new[] {new Column("id", "Guid", false, true, false)}.ToImmutableList());
 
             var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "Db");
 
@@ -68,7 +71,8 @@ namespace Project.Generated.Global
         [Test]
         public void GenerateAClassForOneTableWithUsingAndIdentity()
         {
-            var table = new Table("user_profile", new[] {new Column("id", "Guid", false, true, false)});
+            var table = new Table("user_profile",
+                new[] {new Column("id", "Guid", false, true, false)}.ToImmutableList());
 
             var actual =
                 TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null,
@@ -103,7 +107,7 @@ namespace Project.Generated.Global
                 new[]
                 {
                     new Column("roleId", "Guid", false, true, false), new Column("groupId", "Guid", false, true, false)
-                });
+                }.ToImmutableList());
 
             var actual =
                 TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null,

@@ -11,14 +11,7 @@ namespace DbModelGenerator
             return columns.Any(column => column.RequiresSystemUsing());
         }
 
-        public static Column Parse(dynamic column)
-        {
-            string type = ParseType(column.type);
-            var isAutoIncrement = ((string) column.type).ToLower().Contains("serial");
-            return new Column(column.name, type, column.notnull == 0, column.pk > 0, isAutoIncrement);
-        }
-
-        private static string ParseType(string datatype)
+        public static string ParseType(string datatype)
         {
             var match = Regex.Match(datatype, @"(\w+).*");
             var value = match.Groups[1].Value;

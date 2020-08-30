@@ -1,17 +1,17 @@
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace DbModelGenerator
 {
     public sealed class Table
     {
-        public Table(string name, IEnumerable<Column> columns)
+        public Table(string name, ImmutableList<Column> columns)
         {
             Name = name;
             Columns = columns;
         }
 
         public string Name { get; }
-        public IEnumerable<Column> Columns { get; }
+        public ImmutableList<Column> Columns { get; }
 
         public override string ToString()
         {

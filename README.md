@@ -13,7 +13,7 @@ In your .csproj file simply add the reference to the nuget assembly:
 
 ```xml
     <ItemGroup>
-        <PackageReference Include="DbModelGenerator" Version="0.2.6"/>
+        <PackageReference Include="DbModelGenerator" Version="0.3.3"/>
     </ItemGroup>
 ```
 
@@ -39,7 +39,7 @@ For each of them :
 - `EntityInterface` : An optional C# interface (with an Id property) for the matching class (with an unique id primary key) to implement. It is a generic class with a generic type parameter.
 - `PrimaryKeyAttribute` : A C# attribute class to mark primary keys properties with.
 - `AutoIncrementAttribute` : A C# attribute class to mark auto increment properties with.
-- `Suffix` : A text suffix to appen to generated class names.
+- `Suffix` : A text suffix to append to generated class names.
 
 # Example
 

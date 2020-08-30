@@ -28,10 +28,8 @@ namespace DbModelGenerator
 
         public static Schema ReadSchema(string scriptDirectory, TaskLoggingHelper log)
         {
-            using (var dbSchemaReader = new DbSchemaReader())
-            {
-                return dbSchemaReader.Read(scriptDirectory, log);
-            }
+            var dbSchemaReader = new DbSchemaReader();
+            return dbSchemaReader.Read(scriptDirectory, log);
         }
     }
 }

@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageId>DbModelGenerator</PackageId>
-        <Version>0.2.6</Version>
+        <Version>0.3.3</Version>
         <Authors>Augustin Gjini</Authors>
         <Company>Synergee</Company>
         <IsPackable>true</IsPackable>
@@ -28,17 +28,11 @@
         <!-- pack the props files -->
         <Content Include="build\*" PackagePath="build\" />
         <Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\" />
-
-        <Content Include="runtimes\linux-x64\native\libe_sqlite3.so" Pack="true" PackagePath="tasks\$(TargetFramework)\libe_sqlite3.so" />
-        <Content Include="runtimes\osx-x64\native\libe_sqlite3.dylib" Pack="true" PackagePath="tasks\$(TargetFramework)\libe_sqlite3.dylib" />
-        <Content Include="runtimes\win-x64\native\e_sqlite3.dll" Pack="true" PackagePath="tasks\$(TargetFramework)\e_sqlite3.dll" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper" Version="1.60.6" />
-        <PackageReference Include="dbup-sqlite" Version="4.2.0" />
         <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.0.461" />
-        <PackageReference Include="System.Data.SQLite" Version="1.0.113.1" />
+        <PackageReference Include="Sprache" Version="2.3.0" />
     </ItemGroup>
 
     <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
@@ -47,7 +41,7 @@
         but before NuGet generates a nuspec.
         -->
         <ItemGroup>
-            <_PackageFiles Include="bin\$(Configuration)\*\Dapper.dll;bin\$(Configuration)\*\dbup-sqlite.dll;bin\$(Configuration)\*\dbup-core.dll;bin\$(Configuration)\*\Microsoft.Data.Sqlite.dll;bin\$(Configuration)\*\SQLite.dll">
+            <_PackageFiles Include="bin\$(Configuration)\*\Sprache.dll">
                 <PackagePath>tasks%(RecursiveDir)</PackagePath>
                 <Visible>false</Visible>
                 <BuildAction>Content</BuildAction>
