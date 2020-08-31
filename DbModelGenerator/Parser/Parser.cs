@@ -10,7 +10,7 @@ namespace DbModelGenerator.Parser
     public static class Parser
     {
         private static readonly Parser<char> SeparatorChar =
-            Parse.Chars("()<>@,;:\\\"/[]?={} \t\n");
+            Parse.Chars("()@,;:\\\"/[]?{} \t\n");
 
         private static readonly Parser<char> ControlChar =
             Parse.Char(char.IsControl, "Control character");
@@ -55,7 +55,7 @@ namespace DbModelGenerator.Parser
             from open in Parse.Char('(')
             from e in ExpressionOrLiteral
             from close in Parse.Char(')')
-            select e;
+            select open + e + close;
 
         public static readonly Parser<string> ExpressionOrLiteral =
             from attributes in Expression
@@ -134,12 +134,6 @@ namespace DbModelGenerator.Parser
             from sperator in Parse.WhiteSpace.Many()
             from c in ColumnConstraint
             select new ConstraintDefinition(identifier.GetOrDefault(), c);
-
-        public static readonly Parser<ImmutableList<ConstraintDefinition>> ConstraintDefinitions =
-            from close in Parse.Char(',')
-            from sperator in Parse.WhiteSpace.Many()
-            from constraints in ConstraintDefinition.DelimitedBy(Parse.Char(','))
-            select constraints.ToImmutableList();
 
         public static readonly Parser<AddColumn> AddColumn =
             from add in Parse.IgnoreCase("ADD")

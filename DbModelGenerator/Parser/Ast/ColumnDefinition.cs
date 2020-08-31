@@ -33,5 +33,26 @@ namespace DbModelGenerator.Parser.Ast
             return new Column(Identifier, ColumnParser.ParseType(Type), !isNotNull, isPrimaryKey,
                 Type.ToUpper().Equals("SERIAL") || Attributes.ToUpper().Contains("AUTO_INCREMENT"));
         }
+
+        private bool Equals(ColumnDefinition other)
+        {
+            return Identifier == other.Identifier && Type == other.Type && Attributes == other.Attributes;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ReferenceEquals(this, obj) || obj is ColumnDefinition other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Identifier != null ? Identifier.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Type != null ? Type.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Attributes != null ? Attributes.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
     }
 }

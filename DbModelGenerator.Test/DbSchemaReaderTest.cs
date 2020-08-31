@@ -131,7 +131,6 @@ namespace DbModelGenerator.Test
 
             var userProfile = new Table("user_profile", ImmutableList.Create(
                 new Column("id", "int", false, true, true),
-                new Column("email", "string", false, false, false),
                 new Column("firstName", "string", false, false, false),
                 new Column("lastName", "string", false, false, false),
                 new Column("password", "string", false, false, false),

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using DbModelGenerator.Parser.Ast;
+using DbModelGenerator.Parser.Ast.Constraint;
 using NUnit.Framework;
 using Sprache;
 
@@ -39,10 +40,11 @@ namespace DbModelGenerator.Test
         [Test]
         public void ShouldParseAddColumns()
         {
-            var addColumn = Parser.Parser.AddColumn.Parse("ADD COlumn  id  INT noT NULL  DEFAULT '0'");
+            var addColumn =
+                Parser.Parser.AddColumn.Parse("ADD COlumn  id  INT \n\t NULL  DEFAULT (233 ) CHECK (id > 0)");
             Assert.AreEqual("id", addColumn.ColumnDefinition.Identifier);
             Assert.AreEqual("INT", addColumn.ColumnDefinition.Type);
-            Assert.AreEqual("noT NULL DEFAULT '0'", addColumn.ColumnDefinition.Attributes);
+            Assert.AreEqual("NULL DEFAULT (233) CHECK (id > 0)", addColumn.ColumnDefinition.Attributes);
         }
 
         [Test]
@@ -72,11 +74,28 @@ namespace DbModelGenerator.Test
                 color       VARCHAR(100) NOT NULL,
                 external_id VARCHAR(500),
                 PRIMARY KEY (id),
-                UNIQUE (name)
+                CONSTRAINT   bibi_uk   UNIQUE (name)
             )
             ");
             Assert.AreEqual("brand", tested.Table);
             Assert.AreEqual(6, tested.ColumnDefinitions.Count);
+
+            CollectionAssert.AreEqual(
+                ImmutableList.Create(
+                    new ColumnDefinition("id", "SERIAL", "NOT NULL"),
+                    new ColumnDefinition("name", "VARCHAR", "NOT NULL"),
+                    new ColumnDefinition("logo", "VARCHAR", ""),
+                    new ColumnDefinition("archived", "BOOLEAN", "DEFAULT '0'"),
+                    new ColumnDefinition("color", "VARCHAR", "NOT NULL"),
+                    new ColumnDefinition("external_id", "VARCHAR", "")
+                ), tested.ColumnDefinitions);
+
+
+            CollectionAssert.AreEqual(
+                ImmutableList.Create(
+                    new ConstraintDefinition(null, new PrimaryKeyConstraint(ImmutableList.Create("ID"))),
+                    new ConstraintDefinition("bibi_uk", new UniqueConstraint(ImmutableList.Create("name")))
+                ), tested.ConstraintDefinitions);
         }
 
         [Test]
@@ -95,7 +114,7 @@ namespace DbModelGenerator.Test
     name        VARCHAR(50)  NOT NULL");
             Assert.AreEqual(2, tested.Count());
         }
-        
+
         [Test]
         public void ShouldParseAlterTableWithAddColumn()
         {
