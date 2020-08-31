@@ -1,13 +1,13 @@
 namespace DbModelGenerator.Parser.Ast
 {
-    public sealed class AddColumn : DdlColumnStatement
+    public sealed class AddColumn : DdlAlterTableStatement
     {
         public AddColumn(ColumnDefinition columnDefinition)
         {
             ColumnDefinition = columnDefinition;
         }
 
-        public override string Column => ColumnDefinition.Identifier;
+        public string Column => ColumnDefinition.Identifier;
         public ColumnDefinition ColumnDefinition { get; }
     }
 }

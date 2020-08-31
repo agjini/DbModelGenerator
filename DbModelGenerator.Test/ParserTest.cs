@@ -135,8 +135,8 @@ namespace DbModelGenerator.Test
         NOT NULL
             ");
             Assert.AreEqual("brand", tested.Table);
-            Assert.IsInstanceOf<AddColumn>(tested.DdlColumnStatement);
-            var addColumn = tested.DdlColumnStatement as AddColumn;
+            Assert.IsInstanceOf<AddColumn>(tested.DdlAlterTableStatement);
+            var addColumn = tested.DdlAlterTableStatement as AddColumn;
 
             Assert.AreEqual("name", addColumn!.Column);
             Assert.AreEqual("name", addColumn.ColumnDefinition.Identifier);
@@ -150,9 +150,9 @@ namespace DbModelGenerator.Test
             var tested = Parser.Parser.AlterTable.Parse(@"alTer    
     tablE brand DROP COLUMN name");
             Assert.AreEqual("brand", tested.Table);
-            Assert.IsInstanceOf<DropColumn>(tested.DdlColumnStatement);
+            Assert.IsInstanceOf<DropColumn>(tested.DdlAlterTableStatement);
 
-            Assert.AreEqual("name", tested.DdlColumnStatement.Column);
+            Assert.AreEqual("name", ((DropColumn)tested.DdlAlterTableStatement).Column);
         }
 
         [Test]
@@ -163,9 +163,9 @@ namespace DbModelGenerator.Test
         ColumN    name      tO bo_bo
             ");
             Assert.AreEqual("brand", tested.Table);
-            Assert.IsInstanceOf<RenameColumn>(tested.DdlColumnStatement);
+            Assert.IsInstanceOf<RenameColumn>(tested.DdlAlterTableStatement);
 
-            var renameColumn = tested.DdlColumnStatement as RenameColumn;
+            var renameColumn = tested.DdlAlterTableStatement as RenameColumn;
 
             Assert.AreEqual("name", renameColumn!.Column);
             Assert.AreEqual("bo_bo", renameColumn.NewName);

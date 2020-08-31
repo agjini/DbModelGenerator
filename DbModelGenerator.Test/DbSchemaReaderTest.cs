@@ -154,7 +154,7 @@ namespace DbModelGenerator.Test
             ));
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(userRole, userGroup, userGroupRole, userProfile));
         }
-        
+
         [Test]
         public void ShouldGenerateModelFromScripts6()
         {
@@ -174,9 +174,9 @@ namespace DbModelGenerator.Test
                 new Column("id", "int", false, true, true),
                 new Column("name", "string", true, false, false)
             ));
-            actual.Tables.ShouldDeepEqual(ImmutableList.Create(tenant, userGroup));
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(userGroup, tenant));
         }
-        
+
         [Test]
         public void ShouldGenerateModelFromScripts7()
         {
@@ -186,12 +186,11 @@ namespace DbModelGenerator.Test
             var dbSchemaReader = new DbSchemaReader();
 
             var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
-            
-            Assert.AreEqual(9, actual.Tables.Count());
+
+            Assert.AreEqual(8, actual.Tables.Count());
             Assert.AreEqual(2, actual.Tables.First(t => t.Name == "group_type").Columns.Count);
             Assert.AreEqual(8, actual.Tables.First(t => t.Name == "group_type_available_scope").Columns.Count);
             Assert.AreEqual(3, actual.Tables.First(t => t.Name == "role").Columns.Count);
-            Assert.AreEqual(3, actual.Tables.First(t => t.Name == "role_rights").Columns.Count);
             Assert.AreEqual(5, actual.Tables.First(t => t.Name == "user_group").Columns.Count);
             Assert.AreEqual(30, actual.Tables.First(t => t.Name == "user_profile").Columns.Count);
             Assert.AreEqual(2, actual.Tables.First(t => t.Name == "user_group_role").Columns.Count);

@@ -49,9 +49,16 @@ namespace DbModelGenerator
                                 throw new ArgumentException($"Table {a.Table} not found");
                             }
 
-                            tables[a.Table] = AlterColumns(tables[a.Table], a);
+                            var (newTableName, newColumns) = AlterColumns(tables[a.Table], a);
+                            tables.Remove(a.Table);
+                            tables[newTableName] = newColumns;
                             break;
                         case DropTable a:
+                            if (!tables.Remove(a.Table))
+                            {
+                                throw new ArgumentException($"Table {a.Table} not found");
+                            }
+
                             break;
                     }
                 }
@@ -67,9 +74,11 @@ namespace DbModelGenerator
             return new Regex(@"--.*\n").Replace(content, "");
         }
 
-        private ColumnsCollection AlterColumns(ColumnsCollection columns, AlterTable alterTable)
+        private static (string, ColumnsCollection) AlterColumns(ColumnsCollection columns, AlterTable alterTable)
         {
-            switch (alterTable.DdlColumnStatement)
+            var table = alterTable.Table;
+
+            switch (alterTable.DdlAlterTableStatement)
             {
                 case AddColumn a:
                     columns.Add(a.ColumnDefinition);
@@ -89,9 +98,13 @@ namespace DbModelGenerator
                     }
 
                     break;
+                case RenameTable r:
+                    table = r.NewName;
+
+                    break;
             }
 
-            return columns;
+            return (table, columns);
         }
 
         private IDictionary<string, Column> ReadColumns(string definition)

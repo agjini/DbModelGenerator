@@ -2,13 +2,13 @@ namespace DbModelGenerator.Parser.Ast
 {
     public sealed class AlterTable : DdlTableStatement
     {
-        public AlterTable(string table, DdlColumnStatement ddlColumnStatement)
+        public AlterTable(string table, DdlAlterTableStatement ddlAlterTableStatement)
         {
             Table = table;
-            DdlColumnStatement = ddlColumnStatement;
+            DdlAlterTableStatement = ddlAlterTableStatement;
         }
 
         public override string Table { get; }
-        public DdlColumnStatement DdlColumnStatement { get; }
+        public DdlAlterTableStatement DdlAlterTableStatement { get; }
     }
 }

@@ -1,6 +1,6 @@
 namespace DbModelGenerator.Parser.Ast
 {
-    public sealed class RenameColumn : DdlColumnStatement
+    public sealed class RenameColumn : DdlAlterTableStatement
     {
         public RenameColumn(string column, string newName)
         {
@@ -8,7 +8,7 @@ namespace DbModelGenerator.Parser.Ast
             NewName = newName;
         }
 
-        public override string Column { get; }
+        public string Column { get; }
         public string NewName { get; }
     }
 }

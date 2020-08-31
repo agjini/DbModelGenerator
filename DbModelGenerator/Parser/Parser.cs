@@ -144,12 +144,16 @@ namespace DbModelGenerator.Parser
         public static readonly Parser<RenameColumn> RenameColumn =
             from action in Parse.IgnoreCase("RENAME").Token()
             from column in Parse.IgnoreCase("COLUMN").Token()
-            from identifier in Identifier
-            from sperator2 in Parse.WhiteSpace.Many()
-            from to in Parse.IgnoreCase("TO")
-            from sperator3 in Parse.WhiteSpace.Many()
+            from identifier in Identifier.Token()
+            from to in Parse.IgnoreCase("TO").Token()
             from newName in Identifier
             select new RenameColumn(identifier, newName);
+
+        public static readonly Parser<RenameTable> RenameTable =
+            from action in Parse.IgnoreCase("RENAME").Token()
+            from to in Parse.IgnoreCase("TO").Token()
+            from newName in Identifier
+            select new RenameTable(newName);
 
         public static readonly Parser<DropColumn> DropColumn =
             from action in Parse.IgnoreCase("DROP").Token()
@@ -157,10 +161,11 @@ namespace DbModelGenerator.Parser
             from identifier in Identifier.Text()
             select new DropColumn(identifier);
 
-        public static readonly Parser<DdlColumnStatement> DdlColumnStatement =
+        public static readonly Parser<DdlAlterTableStatement> DdlAlterTableStatement =
             from c in DropColumn
-                .Or<DdlColumnStatement>(RenameColumn)
+                .Or<DdlAlterTableStatement>(RenameColumn)
                 .Or(AddColumn)
+                .Or(RenameTable)
             select c;
 
         public static readonly Parser<CreateTableStatement> CreateTableStatement =
@@ -189,8 +194,8 @@ namespace DbModelGenerator.Parser
             from action in Parse.IgnoreCase("ALTER").Token()
             from column in Parse.IgnoreCase("TABLE").Token()
             from table in Identifier.Token()
-            from ddlColumnStatement in DdlColumnStatement
-            select new AlterTable(table, ddlColumnStatement);
+            from ddlAlterTableStatement in DdlAlterTableStatement
+            select new AlterTable(table, ddlAlterTableStatement);
 
         public static readonly Parser<DropTable> DropTable =
             from action in Parse.IgnoreCase("DROP").Token()
