@@ -27,7 +27,8 @@ namespace DbModelGenerator
 
             foreach (var file in Directory.GetFiles(scriptDirectory).OrderBy(f => f))
             {
-                var content = File.ReadAllText(file, Encoding.UTF8);
+                var content = IgnoreComments(File.ReadAllText(file, Encoding.UTF8));
+
                 var statements = Parser.Parser.DdlTableStatements.Parse(content);
 
                 foreach (var ddlTableStatement in statements)
@@ -59,6 +60,11 @@ namespace DbModelGenerator
             return new Schema(scriptDirectory, tables
                 .Select(e => new Table(e.Key, e.Value.Columns.ToImmutableList()))
                 .ToImmutableList());
+        }
+
+        private static string IgnoreComments(string content)
+        {
+            return new Regex(@"--.*\n").Replace(content, "");
         }
 
         private ColumnsCollection AlterColumns(ColumnsCollection columns, AlterTable alterTable)

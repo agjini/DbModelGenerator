@@ -10,7 +10,7 @@ namespace DbModelGenerator.Parser
     public static class Parser
     {
         private static readonly Parser<char> SeparatorChar =
-            Parse.Chars("()@,;:\\\"/[]?{} \t\n");
+            Parse.Chars("()@,;:\\/[]?{} \t\n");
 
         private static readonly Parser<char> ControlChar =
             Parse.Char(char.IsControl, "Control character");
@@ -136,18 +136,14 @@ namespace DbModelGenerator.Parser
             select new ConstraintDefinition(identifier.GetOrDefault(), c);
 
         public static readonly Parser<AddColumn> AddColumn =
-            from add in Parse.IgnoreCase("ADD")
-            from sperator in Parse.WhiteSpace.Many()
-            from column in Parse.IgnoreCase("COLUMN")
-            from sperator2 in Parse.WhiteSpace.Many()
+            from add in Parse.IgnoreCase("ADD").Token()
+            from column in Parse.IgnoreCase("COLUMN").Token().Optional()
             from columnDefinition in ColumnDefinition
             select new AddColumn(columnDefinition);
 
         public static readonly Parser<RenameColumn> RenameColumn =
-            from action in Parse.IgnoreCase("RENAME")
-            from sperator in Parse.WhiteSpace.Many()
-            from column in Parse.IgnoreCase("COLUMN")
-            from sperator1 in Parse.WhiteSpace.Many()
+            from action in Parse.IgnoreCase("RENAME").Token()
+            from column in Parse.IgnoreCase("COLUMN").Token()
             from identifier in Identifier
             from sperator2 in Parse.WhiteSpace.Many()
             from to in Parse.IgnoreCase("TO")
@@ -156,10 +152,8 @@ namespace DbModelGenerator.Parser
             select new RenameColumn(identifier, newName);
 
         public static readonly Parser<DropColumn> DropColumn =
-            from action in Parse.IgnoreCase("DROP")
-            from sperator in Parse.WhiteSpace.Many()
-            from column in Parse.IgnoreCase("COLUMN")
-            from sperator1 in Parse.WhiteSpace.Many()
+            from action in Parse.IgnoreCase("DROP").Token()
+            from column in Parse.IgnoreCase("COLUMN").Token().Optional()
             from identifier in Identifier.Text()
             select new DropColumn(identifier);
 

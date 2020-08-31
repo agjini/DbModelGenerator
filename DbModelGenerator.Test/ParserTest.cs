@@ -38,6 +38,17 @@ namespace DbModelGenerator.Test
         }
 
         [Test]
+        public void ShouldParseComplexColumnDefinition()
+        {
+            var actual =
+                Parser.Parser.ColumnDefinition.Parse(
+                    "user_group_id                 INT          NOT NULL REFERENCES \"user_group\" (id)");
+            Assert.AreEqual("user_group_id", actual.Identifier);
+            Assert.AreEqual("INT", actual.Type);
+            Assert.AreEqual("NOT NULL REFERENCES \"user_group\" (id)", actual.Attributes);
+        }
+
+        [Test]
         public void ShouldParseAddColumns()
         {
             var addColumn =
