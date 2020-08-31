@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using System.Linq;
 using DbModelGenerator.Parser.Ast;
 using NUnit.Framework;
 using Sprache;
@@ -22,16 +24,25 @@ namespace DbModelGenerator.Test
             var columnDefinition = Parser.Parser.ColumnDefinition.Parse("   id  INT  noT NULL  DEFAULT 10.4   \n");
             Assert.AreEqual("id", columnDefinition.Identifier);
             Assert.AreEqual("INT", columnDefinition.Type);
-            Assert.AreEqual("noT NULL  DEFAULT 10.4   \n", columnDefinition.Attributes);
+            Assert.AreEqual("noT NULL DEFAULT 10.4", columnDefinition.Attributes);
         }
 
         [Test]
         public void ShouldParseAddColumn()
         {
-            var addColumn = Parser.Parser.AddColumn.Parse("ADD COlumn  id  INT noT NULL  DEFAULT 0");
+            var addColumn = Parser.Parser.AddColumn.Parse("ADD COlumn  id  INT noT NULL  DEFAULT '0'");
             Assert.AreEqual("id", addColumn.ColumnDefinition.Identifier);
             Assert.AreEqual("INT", addColumn.ColumnDefinition.Type);
-            Assert.AreEqual("noT NULL  DEFAULT 0", addColumn.ColumnDefinition.Attributes);
+            Assert.AreEqual("noT NULL DEFAULT '0'", addColumn.ColumnDefinition.Attributes);
+        }
+
+        [Test]
+        public void ShouldParseAddColumns()
+        {
+            var addColumn = Parser.Parser.AddColumn.Parse("ADD COlumn  id  INT noT NULL  DEFAULT '0'");
+            Assert.AreEqual("id", addColumn.ColumnDefinition.Identifier);
+            Assert.AreEqual("INT", addColumn.ColumnDefinition.Type);
+            Assert.AreEqual("noT NULL DEFAULT '0'", addColumn.ColumnDefinition.Attributes);
         }
 
         [Test]
@@ -69,6 +80,23 @@ namespace DbModelGenerator.Test
         }
 
         [Test]
+        public void ShouldParsePrimaryKey()
+        {
+            var tested = Parser.Parser.PrimaryKeyConstraint.Parse(@"PRIMARY KEY (id)");
+            CollectionAssert.AreEquivalent(ImmutableList.Create("ID"), tested.Columns);
+        }
+
+        [Test]
+        public void ShouldParseSeveralColumnDefinition()
+        {
+            var tested = Parser.Parser.ColumnDefinition
+                .DelimitedBy(Parse.Char(','))
+                .Parse(@"id          SERIAL       NOT NULL,
+    name        VARCHAR(50)  NOT NULL");
+            Assert.AreEqual(2, tested.Count());
+        }
+        
+        [Test]
         public void ShouldParseAlterTableWithAddColumn()
         {
             var tested = Parser.Parser.AlterTable.Parse(@"alTer    
@@ -83,7 +111,7 @@ namespace DbModelGenerator.Test
             Assert.AreEqual("name", addColumn!.Column);
             Assert.AreEqual("name", addColumn.ColumnDefinition.Identifier);
             Assert.AreEqual("VARCHAR", addColumn.ColumnDefinition.Type);
-            Assert.AreEqual("NOT NULL\n            ", addColumn.ColumnDefinition.Attributes);
+            Assert.AreEqual("NOT NULL", addColumn.ColumnDefinition.Attributes);
         }
 
         [Test]

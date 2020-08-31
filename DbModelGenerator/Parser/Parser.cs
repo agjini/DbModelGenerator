@@ -9,10 +9,24 @@ namespace DbModelGenerator.Parser
 {
     public static class Parser
     {
+        private static readonly Parser<char> SeparatorChar =
+            Parse.Chars("()<>@,;:\\\"/[]?={} \t\n");
+
+        private static readonly Parser<char> ControlChar =
+            Parse.Char(char.IsControl, "Control character");
+
+        private static readonly Parser<char> TokenChar =
+            Parse.AnyChar
+                .Except(SeparatorChar)
+                .Except(ControlChar);
+
+        private static readonly Parser<string> Token =
+            TokenChar.AtLeastOnce().Text().Token();
+
         public static readonly Parser<string> IdentifierName =
-            from i in Parse.Regex(new Regex(@"\w+", RegexOptions.IgnoreCase))
+            from i in Parse.Regex(new Regex(@"\w+", RegexOptions.IgnoreCase)).Token()
             where i.ToUpper() != "PRIMARY"
-                  && i.ToUpper() != "PRIMARY"
+                  && i.ToUpper() != "UNIQUE"
                   && i.ToUpper() != "CONSTRAINT"
                   && i.ToUpper() != "TABLE"
                   && i.ToUpper() != "COLUMN"
@@ -31,16 +45,30 @@ namespace DbModelGenerator.Parser
             select i;
 
         public static readonly Parser<string> Identifier =
-            from leading in Parse.WhiteSpace.Many()
-            from i in IdentifierName.Or(SimpleQuoteDelimitedIdentifierName).Or(DoubleQuoteDelimitedIdentifierName)
-            from trailing in Parse.WhiteSpace.Many()
+            from i in IdentifierName
+                .Or(SimpleQuoteDelimitedIdentifierName)
+                .Or(DoubleQuoteDelimitedIdentifierName)
+                .Token()
             select i;
+
+        public static readonly Parser<string> Expression =
+            from open in Parse.Char('(')
+            from e in ExpressionOrLiteral
+            from close in Parse.Char(')')
+            select e;
+
+        public static readonly Parser<string> ExpressionOrLiteral =
+            from attributes in Expression
+                .Or(Token)
+                .Many()
+            select string.Join(" ", attributes);
 
         public static readonly Parser<string> Attributes =
             from leading in Parse.WhiteSpace.Many()
-            from attributes in Parse.Regex(new Regex(@"[^,);]+", RegexOptions.IgnoreCase))
+            from constraintIdentifier in ConstraintIdentifier.Optional()
+            from attributes in ExpressionOrLiteral
             from trailing in Parse.WhiteSpace.Many()
-            select attributes;
+            select string.Join(" ", attributes);
 
         public static readonly Parser<string> TypeInfo =
             from leading in Parse.WhiteSpace.Many()
@@ -65,29 +93,22 @@ namespace DbModelGenerator.Parser
             select new ColumnDefinition(identifier, type, a.GetOrDefault());
 
         public static readonly Parser<string> ConstraintIdentifier =
-            from add in Parse.IgnoreCase("CONSTRAINT")
-            from sperator in Parse.WhiteSpace.Many()
+            from add in Parse.IgnoreCase("CONSTRAINT").Token()
             from identifier in Identifier
             select identifier;
 
         public static readonly Parser<PrimaryKeyConstraint> PrimaryKeyConstraint =
-            from type in Parse.Regex(new Regex(@"PRIMARY\s+KEY", RegexOptions.IgnoreCase))
-            from sperator in Parse.WhiteSpace.Many()
-            from open in Parse.Char('(')
-            from sperator2 in Parse.WhiteSpace.Many()
-            from columns in Identifier.DelimitedBy(Parse.Char(','))
-            from sperator3 in Parse.WhiteSpace.Many()
-            from close in Parse.Char(')')
+            from type in Parse.Regex(new Regex(@"PRIMARY\s+KEY", RegexOptions.IgnoreCase)).Token()
+            from open in Parse.Char('(').Token()
+            from columns in Identifier.DelimitedBy(Parse.Char(',').Token())
+            from close in Parse.Char(')').Token()
             select new PrimaryKeyConstraint(columns.Select(c => c.ToUpper()).ToImmutableList());
 
         public static readonly Parser<UniqueConstraint> UniqueConstraint =
-            from type in Parse.IgnoreCase("UNIQUE")
-            from sperator in Parse.WhiteSpace.Many()
-            from open in Parse.Char('(')
-            from sperator2 in Parse.WhiteSpace.Many()
-            from columns in Identifier.DelimitedBy(Parse.Char(','))
-            from sperator3 in Parse.WhiteSpace.Many()
-            from close in Parse.Char(')')
+            from type in Parse.IgnoreCase("UNIQUE").Token()
+            from open in Parse.Char('(').Token()
+            from columns in Identifier.DelimitedBy(Parse.Char(',').Token())
+            from close in Parse.Char(')').Token()
             select new UniqueConstraint(columns.ToImmutableList());
 
         public static readonly Parser<ForeignKeyConstraint> ForeignKeyConstraint =
@@ -168,7 +189,7 @@ namespace DbModelGenerator.Parser
             from sperator2 in Parse.WhiteSpace.Many()
             from open in Parse.Char('(')
             from sperator3 in Parse.WhiteSpace.Many()
-            from statements in CreateTableStatement.DelimitedBy(Parse.Char(','))
+            from statements in CreateTableStatement.DelimitedBy(Parse.Char(',').Token())
             from sperator5 in Parse.WhiteSpace.Many()
             from close in Parse.Char(')')
             from sperator6 in Parse.WhiteSpace.Many()
@@ -177,21 +198,16 @@ namespace DbModelGenerator.Parser
             select new CreateTable(columnDefinitions.ToImmutableList(), constraints.ToImmutableList(), table);
 
         public static readonly Parser<AlterTable> AlterTable =
-            from action in Parse.IgnoreCase("ALTER")
-            from sperator in Parse.WhiteSpace.Many()
-            from column in Parse.IgnoreCase("TABLE")
-            from sperator1 in Parse.WhiteSpace.Many()
-            from table in Identifier
-            from sperator2 in Parse.WhiteSpace.Many()
+            from action in Parse.IgnoreCase("ALTER").Token()
+            from column in Parse.IgnoreCase("TABLE").Token()
+            from table in Identifier.Token()
             from ddlColumnStatement in DdlColumnStatement
             select new AlterTable(table, ddlColumnStatement);
 
         public static readonly Parser<DropTable> DropTable =
-            from action in Parse.IgnoreCase("DROP")
-            from sperator in Parse.WhiteSpace.Many()
-            from column in Parse.IgnoreCase("TABLE")
-            from sperator1 in Parse.WhiteSpace.Many()
-            from table in Identifier
+            from action in Parse.IgnoreCase("DROP").Token()
+            from column in Parse.IgnoreCase("TABLE").Token()
+            from table in Identifier.Token()
             select new DropTable(table);
 
         public static readonly Parser<DdlTableStatement> DdlTableStatement =

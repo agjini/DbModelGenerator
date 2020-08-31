@@ -154,5 +154,28 @@ namespace DbModelGenerator.Test
             ));
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(userRole, userGroup, userGroupRole, userProfile));
         }
+        
+        
+        [Test]
+        public void ShouldGenerateModelFromScripts6()
+        {
+            var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
+            var scriptsPath = Path.Combine(testProjectDirectory, "Scripts6");
+
+            var dbSchemaReader = new DbSchemaReader();
+
+            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+
+            var tenant = new Table("tenant", ImmutableList.Create(
+                new Column("id", "int", false, true, true),
+                new Column("name", "string", true, false, false),
+                new Column("groupId", "int", false, false, false)
+            ));
+            var userGroup = new Table("user_group", ImmutableList.Create(
+                new Column("id", "int", false, true, true),
+                new Column("name", "string", true, false, false)
+            ));
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(tenant, userGroup));
+        }
     }
 }

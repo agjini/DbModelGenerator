@@ -29,9 +29,9 @@ namespace DbModelGenerator.Parser.Ast
                 }
 
                 return false;
-            });
+            }) || new Regex(@"PRIMARY KEY", RegexOptions.IgnoreCase).IsMatch(Attributes);
             return new Column(Identifier, ColumnParser.ParseType(Type), !isNotNull, isPrimaryKey,
-                Type.ToUpper().Equals("SERIAL") || Attributes.ToUpper().Contains("AUTOINCREMENT"));
+                Type.ToUpper().Equals("SERIAL") || Attributes.ToUpper().Contains("AUTO_INCREMENT"));
         }
     }
 }
