@@ -161,11 +161,28 @@ namespace DbModelGenerator.Parser
             from identifier in Identifier.Text()
             select new DropColumn(identifier);
 
+        public static readonly Parser<NotNullAction> NotNullAction =
+            from action in Parse.IgnoreCase("SET")
+                .Or(Parse.IgnoreCase("DROP"))
+                .Token()
+                .Text()
+            from not in Parse.IgnoreCase("NOT").Token()
+            from n in Parse.IgnoreCase("NULL").Token()
+            select action.ToUpper().Equals("SET") ? Ast.NotNullAction.SetNotNull : Ast.NotNullAction.DropNotNull;
+
+        public static readonly Parser<AlterColumn> AlterColumn =
+            from alter in Parse.IgnoreCase("ALTER").Token()
+            from column in Parse.IgnoreCase("COLUMN").Token().Optional()
+            from identifier in Identifier.Token()
+            from action in NotNullAction
+            select new AlterColumn(identifier, action);
+
         public static readonly Parser<DdlAlterTableStatement> DdlAlterTableStatement =
             from c in DropColumn
                 .Or<DdlAlterTableStatement>(RenameColumn)
                 .Or(AddColumn)
                 .Or(RenameTable)
+                .Or(AlterColumn)
             select c;
 
         public static readonly Parser<CreateTableStatement> CreateTableStatement =
@@ -194,8 +211,8 @@ namespace DbModelGenerator.Parser
             from action in Parse.IgnoreCase("ALTER").Token()
             from column in Parse.IgnoreCase("TABLE").Token()
             from table in Identifier.Token()
-            from ddlAlterTableStatement in DdlAlterTableStatement
-            select new AlterTable(table, ddlAlterTableStatement);
+            from ddlAlterTableStatements in DdlAlterTableStatement.DelimitedBy(Parse.Char(','))
+            select new AlterTable(table, ddlAlterTableStatements.ToImmutableList());
 
         public static readonly Parser<DropTable> DropTable =
             from action in Parse.IgnoreCase("DROP").Token()

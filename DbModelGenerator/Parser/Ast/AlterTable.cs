@@ -1,14 +1,16 @@
+using System.Collections.Immutable;
+
 namespace DbModelGenerator.Parser.Ast
 {
     public sealed class AlterTable : DdlTableStatement
     {
-        public AlterTable(string table, DdlAlterTableStatement ddlAlterTableStatement)
+        public AlterTable(string table, ImmutableList<DdlAlterTableStatement> ddlAlterTableStatements)
         {
             Table = table;
-            DdlAlterTableStatement = ddlAlterTableStatement;
+            DdlAlterTableStatements = ddlAlterTableStatements;
         }
 
         public override string Table { get; }
-        public DdlAlterTableStatement DdlAlterTableStatement { get; }
+        public ImmutableList<DdlAlterTableStatement> DdlAlterTableStatements { get; }
     }
 }

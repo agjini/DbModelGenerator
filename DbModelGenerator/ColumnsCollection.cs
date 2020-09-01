@@ -18,7 +18,7 @@ namespace DbModelGenerator
 
         public bool Remove(string column)
         {
-            var index = Columns.FindIndex(c => c.Name.ToUpper().Equals(column.ToUpper()));
+            var index = GetIndex(column);
             if (index == -1)
             {
                 return false;
@@ -30,7 +30,7 @@ namespace DbModelGenerator
 
         public bool Rename(string column, string newName)
         {
-            var index = Columns.FindIndex(c => c.Name.ToUpper().Equals(column.ToUpper()));
+            var index = GetIndex(column);
             if (index == -1)
             {
                 return false;
@@ -45,6 +45,26 @@ namespace DbModelGenerator
         public void Add(ColumnDefinition columnDefinition)
         {
             Columns.Add(columnDefinition.ToColumn(Constraints));
+        }
+
+        public bool Alter(string column, NotNullAction notNullAction)
+        {
+            var index = GetIndex(column);
+            if (index == -1)
+            {
+                return false;
+            }
+
+            var previous = Columns[index];
+            Columns[index] = new Column(previous.Name, previous.Type, notNullAction == NotNullAction.DropNotNull,
+                previous.IsPrimaryKey, previous.IsAutoIncrement);
+
+            return true;
+        }
+
+        private int GetIndex(string column)
+        {
+            return Columns.FindIndex(c => c.Name.ToUpper().Equals(column.ToUpper()));
         }
     }
 }

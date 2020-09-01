@@ -197,5 +197,27 @@ namespace DbModelGenerator.Test
             Assert.AreEqual(6, actual.Tables.First(t => t.Name == "user_scope_access").Columns.Count);
             Assert.AreEqual(10, actual.Tables.First(t => t.Name == "user_grid_state").Columns.Count);
         }
+
+        [Test]
+        public void ShouldGenerateModelFromScripts8()
+        {
+            var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
+            var scriptsPath = Path.Combine(testProjectDirectory, "Scripts8");
+
+            var dbSchemaReader = new DbSchemaReader();
+
+            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+
+            var contract = new Table("contract", ImmutableList.Create(
+                new Column("id", "int", false, true, true),
+                new Column("code", "string", false, false, false),
+                new Column("created_by", "string", false, false, false),
+                new Column("creation_date", "DateTime", false, false, false),
+                new Column("last_modified_by", "string", true, false, false),
+                new Column("last_modification_date", "DateTime", true, false, false),
+                new Column("country_id", "int", false, false, false)
+            ));
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(contract));
+        }
     }
 }

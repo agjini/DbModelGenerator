@@ -1,13 +1,20 @@
 namespace DbModelGenerator.Parser.Ast
 {
+    public enum NotNullAction
+    {
+        SetNotNull,
+        DropNotNull
+    }
+
     public sealed class AlterColumn : DdlAlterTableStatement
     {
-        public AlterColumn(ColumnDefinition columnDefinition)
+        public AlterColumn(string column, NotNullAction notNullAction)
         {
-            ColumnDefinition = columnDefinition;
+            Column = column;
+            NotNullAction = notNullAction;
         }
 
-        public string Column => ColumnDefinition.Identifier;
-        public ColumnDefinition ColumnDefinition { get; }
+        public string Column { get; }
+        public NotNullAction NotNullAction { get; }
     }
 }
