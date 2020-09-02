@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
@@ -22,8 +23,14 @@ namespace DbModelGenerator
 
             return Directory.GetDirectories(parameters.ScriptsPath)
                 .Select(d => ReadSchema(d, log))
-                .SelectMany(d => TemplateGenerator.Generate(d, parameters, log))
+                .SelectMany(d => TemplateGenerator.Generate(IgnoreTables(d, parameters.Ignore), parameters, log))
                 .ToArray();
+        }
+
+        private static Schema IgnoreTables(Schema schema, string ignore)
+        {
+            var toIgnore = ignore.Split(',').Select(i => i.Trim().ToUpper()).ToImmutableHashSet();
+            return new Schema(schema.ScriptDirectory, schema.Tables.Where(t => !toIgnore.Contains(t.Name.ToUpper())));
         }
 
         public static Schema ReadSchema(string scriptDirectory, TaskLoggingHelper log)

@@ -13,7 +13,7 @@ In your .csproj file simply add the reference to the nuget assembly:
 
 ```xml
     <ItemGroup>
-        <PackageReference Include="DbModelGenerator" Version="0.4.0"/>
+        <PackageReference Include="DbModelGenerator" Version="0.4.1"/>
     </ItemGroup>
 ```
 
@@ -41,6 +41,7 @@ For each of them :
 - `PrimaryKeyAttribute` : A C# attribute class to mark primary keys properties with.
 - `AutoIncrementAttribute` : A C# attribute class to mark auto increment properties with.
 - `Suffix` : A text suffix to append to generated class names.
+- `Ignore` : List of tables to ignore (separated by comma).
 
 # Example
 

@@ -17,6 +17,8 @@ namespace DbModelGenerator
 
         public string ScriptsDir { get; set; }
 
+        public string Ignore { get; set; }
+
         [Output] public ITaskItem[] GeneratedFiles { get; private set; }
 
         public override bool Execute()
@@ -32,7 +34,7 @@ namespace DbModelGenerator
             var scriptsPath = Path.Combine(projectPath, scriptsDirectory);
 
             var parameters = new Parameters(EntityInterface, PrimaryKeyAttribute, AutoIncrementAttribute, Suffix,
-                projectPath, scriptsPath);
+                Ignore, projectPath, scriptsPath);
             Log.LogMessage("GeneraDbModel parameters:\n", parameters);
 
             GeneratedFiles = DbModelGenerator.Generate(parameters, Log);

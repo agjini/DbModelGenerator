@@ -6,7 +6,7 @@ namespace DbModelGenerator
     public sealed class Parameters
     {
         public Parameters(string entityInterface, string primaryKeyAttribute, string autoIncrementAttribute,
-            string suffix, string projectPath, string scriptsPath)
+            string suffix, string ignore, string projectPath, string scriptsPath)
         {
             EntityInterface = entityInterface;
             PrimaryKeyAttribute = primaryKeyAttribute;
@@ -14,6 +14,7 @@ namespace DbModelGenerator
             Suffix = suffix;
             ProjectPath = projectPath ?? throw new ArgumentNullException(nameof(projectPath));
             ScriptsPath = scriptsPath ?? throw new ArgumentNullException(nameof(scriptsPath));
+            Ignore = ignore;
         }
 
         public string EntityInterface { get; }
@@ -27,6 +28,8 @@ namespace DbModelGenerator
         public string ScriptsPath { get; }
 
         public string ProjectPath { get; }
+
+        public string Ignore { get; }
 
         public override string ToString()
         {

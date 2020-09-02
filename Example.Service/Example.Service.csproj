@@ -7,12 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Generated\**\*" />
+        <Folder Include="Generated\**\*"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="DbModelGenerator" Version="0.3.9" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0" />
+        <PackageReference Include="DbModelGenerator" Version="0.4.0"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0"/>
     </ItemGroup>
 
     <Target Name="Generate Db Model" BeforeTargets="BeforeBuild">
@@ -22,7 +22,7 @@
         <!-- Suffix (optional) -->
         <!-- ScriptsDir (optional) : b default SQL scripts will be searched into Scripts project sub-folder -->
         <!-- Output classes will be generated into Generated project sub-folder -->
-        <GenerateDbModel EntityInterface="Example.Service.IEntity;Example.Service.IDbEntity(created_by)" PrimaryKeyAttribute="Example.Service.PrimaryKey" AutoIncrementAttribute="Example.Service.AutoIncrement" Suffix="Db" />
+        <GenerateDbModel EntityInterface="Example.Service.IEntity;Example.Service.IDbEntity(created_by)" PrimaryKeyAttribute="Example.Service.PrimaryKey" AutoIncrementAttribute="Example.Service.AutoIncrement" Suffix="Db"/>
     </Target>
 
 </Project> 
