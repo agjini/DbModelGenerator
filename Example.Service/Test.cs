@@ -7,8 +7,8 @@ namespace Example.Service
     {
         public static void Main(string[] args)
         {
-            var roleDb = new RoleDb("test");
-            Console.WriteLine("Works : {0}", roleDb);
+            var userGroupDb = new UserGroupDb("test");
+            Console.WriteLine("Works : {0}", userGroupDb);
         }
     }
 }
