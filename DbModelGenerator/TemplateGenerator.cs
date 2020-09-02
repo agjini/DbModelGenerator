@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -61,7 +62,7 @@ namespace DbModelGenerator
         {
             var className = GetClassName(table, suffix);
 
-            var entityInterfaceClass = ParseClassName(entityInterface);
+            var entityInterfaces = ParseEntityInterfaces(entityInterface);
             var primaryKeyAttributeClass = ParseClassName(primaryKeyAttribute);
             var autoIncrementAttributeClass = ParseClassName(autoIncrementAttribute);
             var contentBuilder = new StringBuilder();
@@ -71,20 +72,23 @@ namespace DbModelGenerator
                 contentBuilder.Append("using System;\n");
             }
 
-            var idColumn = table.Columns
-                .FirstOrDefault(c => c.IsPrimaryKey && c.Name.ToLower().Equals("id"));
-
             var hasPrimaryKeys = table.Columns
                 .Any(c => c.IsPrimaryKey);
 
-            if (entityInterfaceClass != null && idColumn != null)
+            var matchingInterfaces = entityInterfaces.Where(e => e.Properties.All(p =>
+                    table.Columns.Exists(c =>
+                        string.Equals(p.Item1, c.Name, StringComparison.CurrentCultureIgnoreCase))))
+                .ToImmutableList();
+
+            foreach (var matchingInterfaceNamespace in matchingInterfaces.Select(m => m.Namespace).Distinct())
             {
-                contentBuilder.Append($"using {entityInterfaceClass.Item1};\n");
+                contentBuilder.Append($"using {matchingInterfaceNamespace};\n");
             }
 
             if (primaryKeyAttributeClass != null && hasPrimaryKeys)
             {
-                if (entityInterfaceClass == null || !primaryKeyAttributeClass.Item1.Equals(entityInterfaceClass.Item1))
+                if (!matchingInterfaces.Exists(e => string.Equals($"{e.Namespace}.{e.Name}",
+                    primaryKeyAttributeClass.Item1, StringComparison.CurrentCultureIgnoreCase)))
                 {
                     contentBuilder.Append($"using {primaryKeyAttributeClass.Item1};\n");
                 }
@@ -94,8 +98,8 @@ namespace DbModelGenerator
 
                 if (autoIncrementAttributeClass != null
                     && hasAutoIncrementKeys
-                    && (entityInterfaceClass == null ||
-                        !autoIncrementAttributeClass.Item1.Equals(entityInterfaceClass.Item1))
+                    && !matchingInterfaces.Exists(e => string.Equals($"{e.Namespace}.{e.Name}",
+                        autoIncrementAttributeClass.Item1, StringComparison.CurrentCultureIgnoreCase))
                     && !autoIncrementAttributeClass.Item1.Equals(primaryKeyAttributeClass.Item1))
                 {
                     contentBuilder.Append($"using {autoIncrementAttributeClass.Item1};\n");
@@ -105,9 +109,10 @@ namespace DbModelGenerator
             contentBuilder.Append($"\nnamespace {ns}\n{{\n\n");
 
             contentBuilder.Append($"\tpublic sealed class {className}");
-            if (entityInterfaceClass != null && idColumn != null)
+            if (matchingInterfaces.Count > 0)
             {
-                contentBuilder.Append($" : {entityInterfaceClass.Item2}<{idColumn.TypeAsString()}>");
+                contentBuilder.Append(
+                    $" : {string.Join(", ", matchingInterfaces.Select(e => e.GetDeclaration(table.Columns)))}");
             }
 
             contentBuilder.Append("\n\t{\n\n");
@@ -161,6 +166,60 @@ namespace DbModelGenerator
             }
 
             return sb.ToString();
+        }
+
+        private static ImmutableList<EntityInterface> ParseEntityInterfaces(string identityInterface)
+        {
+            if (identityInterface == null)
+            {
+                return ImmutableList<EntityInterface>.Empty;
+            }
+
+            return identityInterface.Split(';')
+                .Select(e => ParseEntityInterface(e.Trim()))
+                .ToImmutableList();
+        }
+
+        private static EntityInterface ParseEntityInterface(string identityInterface)
+        {
+            if (identityInterface == null)
+            {
+                return null;
+            }
+
+            const string pattern = @"(?<ns>.*)\.(?<classname>\w+)\s*(\((?<properties>[\w!,]*)\))?";
+
+            var match = Regex.Match(identityInterface, pattern);
+            if (match.Success)
+            {
+                var ns = match.Groups["ns"].Value;
+                var className = match.Groups["classname"].Value;
+                var matchGroup = match.Groups["properties"].Value;
+                ImmutableList<(string, bool)> properties;
+                if (matchGroup == "")
+                {
+                    properties = ImmutableList.Create(("id", true));
+                }
+                else
+                {
+                    properties = matchGroup
+                        .Split(',')
+                        .Select(s =>
+                        {
+                            var property = s.Trim();
+                            return property.EndsWith("!")
+                                ? (property.Substring(0, property.Length - 1), true)
+                                : (property, false);
+                        })
+                        .ToImmutableList();
+                }
+
+                return new EntityInterface(ns, className, properties);
+            }
+
+            throw new ArgumentException(
+                    $"Parameter IdentityInterface has wrong format : {identityInterface} must be of the form 'Namespace.ClassName'")
+                ;
         }
 
         private static Tuple<string, string> ParseClassName(string identityInterface)

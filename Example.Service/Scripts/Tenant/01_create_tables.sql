@@ -11,6 +11,7 @@ CREATE TABLE user_profile
     disabled    BOOLEAN      NOT NULL DEFAULT '0',
     groupId     TEXT         NOT NULL,
     latitude    DECIMAL(10, 5),
+    created_by  TEXT         NOT NULL,
     PRIMARY KEY (id)
 );
 
