@@ -106,15 +106,16 @@ namespace Project.Generated.Global
             var table = new Table("user_profile",
                 new[]
                 {
-                    new Column("role_id", "Guid", false, true, false), new Column("group_id", "int", false, true, false)
+                    new Column("role_id", "int", false, true, true), new Column("group_id", "int", false, true, false)
                 }.ToImmutableList());
 
             var actual =
-                TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity;Odin.Api.IRoleEntity(role_id);Odin.Api.IGroupEntity(role_id,group_id!);Odin.Api.Entity.IDbEntity(model_id,created_by,creation_date,modified_by,modification_date)", null, null,
+                TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity;Odin.Api.IRoleEntity(role_id);Odin.Api.IGroupEntity(role_id,group_id!);Odin.Api.Entity.IDbEntity(model_id,created_by,creation_date,modified_by,modification_date)", 
+	                "Odin.Api.PrimaryKey", 
+	                "Odin.Api.Generated",
                     null);
 
-            const string expected = @"using System;
-using Odin.Api;
+            const string expected = @"using Odin.Api;
 
 namespace Project.Generated.Global
 {
@@ -122,14 +123,17 @@ namespace Project.Generated.Global
 	public sealed class UserProfile : IRoleEntity, IGroupEntity<int>
 	{
 
-		public UserProfile(Guid role_id, int group_id)
+		public UserProfile(int? role_id, int group_id)
 		{
 			RoleId = role_id;
 			GroupId = group_id;
 		}
 
-		public Guid RoleId { get; }
+		[PrimaryKey]
+		[Generated]
+		public int? RoleId { get; }
 
+		[PrimaryKey]
 		public int GroupId { get; }
 
 	}

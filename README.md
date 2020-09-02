@@ -13,7 +13,7 @@ In your .csproj file simply add the reference to the nuget assembly:
 
 ```xml
     <ItemGroup>
-        <PackageReference Include="DbModelGenerator" Version="0.3.7"/>
+        <PackageReference Include="DbModelGenerator" Version="0.4.0"/>
     </ItemGroup>
 ```
 
@@ -36,7 +36,8 @@ For each of them :
 # Optional parameters :
 
 - `ScriptsDir` : The absolute directory where to search for DbUp migration scripts
-- `EntityInterface` : An optional C# interface (with an Id property) for the matching class (with an unique id primary key) to implement. It is a generic class with a generic type parameter.
+- `EntityInterface` : A list of C# interfaces for the matching classes to implement.
+ An interface define all the matching fields and can have generic type parameters.
 - `PrimaryKeyAttribute` : A C# attribute class to mark primary keys properties with.
 - `AutoIncrementAttribute` : A C# attribute class to mark auto increment properties with.
 - `Suffix` : A text suffix to append to generated class names.

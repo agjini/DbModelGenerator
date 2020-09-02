@@ -87,7 +87,7 @@ namespace DbModelGenerator
 
             if (primaryKeyAttributeClass != null && hasPrimaryKeys)
             {
-                if (!matchingInterfaces.Exists(e => string.Equals($"{e.Namespace}.{e.Name}",
+                if (!matchingInterfaces.Exists(e => string.Equals($"{e.Namespace}",
                     primaryKeyAttributeClass.Item1, StringComparison.CurrentCultureIgnoreCase)))
                 {
                     contentBuilder.Append($"using {primaryKeyAttributeClass.Item1};\n");
@@ -98,7 +98,7 @@ namespace DbModelGenerator
 
                 if (autoIncrementAttributeClass != null
                     && hasAutoIncrementKeys
-                    && !matchingInterfaces.Exists(e => string.Equals($"{e.Namespace}.{e.Name}",
+                    && !matchingInterfaces.Exists(e => string.Equals($"{e.Namespace}",
                         autoIncrementAttributeClass.Item1, StringComparison.CurrentCultureIgnoreCase))
                     && !autoIncrementAttributeClass.Item1.Equals(primaryKeyAttributeClass.Item1))
                 {
