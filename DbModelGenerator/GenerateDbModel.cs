@@ -34,7 +34,7 @@ namespace DbModelGenerator
             var scriptsPath = Path.Combine(projectPath, scriptsDirectory);
 
             var parameters = new Parameters(EntityInterface, PrimaryKeyAttribute, AutoIncrementAttribute, Suffix,
-                Ignore, projectPath, scriptsPath);
+                Ignore ?? "", projectPath, scriptsPath);
             Log.LogMessage("GeneraDbModel parameters:\n", parameters);
 
             GeneratedFiles = DbModelGenerator.Generate(parameters, Log);
