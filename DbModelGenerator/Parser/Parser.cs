@@ -138,6 +138,7 @@ namespace DbModelGenerator.Parser
         public static readonly Parser<AddColumn> AddColumn =
             from add in Parse.IgnoreCase("ADD").Token()
             from column in Parse.IgnoreCase("COLUMN").Token().Optional()
+            from ifNotExists in IfNotExists.Optional()
             from columnDefinition in ColumnDefinition
             select new AddColumn(columnDefinition);
 
@@ -155,9 +156,21 @@ namespace DbModelGenerator.Parser
             from newName in Identifier
             select new RenameTable(newName);
 
+        public static readonly Parser<bool> IfExists =
+            from i in Parse.IgnoreCase("IF").Token()
+            from e in Parse.IgnoreCase("EXISTS").Token()
+            select true;
+        
+        public static readonly Parser<bool> IfNotExists =
+            from i in Parse.IgnoreCase("IF").Token()
+            from n in Parse.IgnoreCase("NOT").Token()
+            from e in Parse.IgnoreCase("EXISTS").Token()
+            select true;
+        
         public static readonly Parser<DropColumn> DropColumn =
             from action in Parse.IgnoreCase("DROP").Token()
             from column in Parse.IgnoreCase("COLUMN").Token().Optional()
+            from ifExists in IfExists.Optional()
             from identifier in Identifier.Text()
             select new DropColumn(identifier);
 

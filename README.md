@@ -13,7 +13,7 @@ In your .csproj file simply add the reference to the nuget assembly:
 
 ```xml
     <ItemGroup>
-        <PackageReference Include="DbModelGenerator" Version="0.4.2"/>
+        <PackageReference Include="DbModelGenerator" Version="0.4.3"/>
     </ItemGroup>
 ```
 

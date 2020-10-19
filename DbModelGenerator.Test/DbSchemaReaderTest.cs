@@ -215,7 +215,7 @@ namespace DbModelGenerator.Test
                 new Column("creation_date", "DateTime", false, false, false),
                 new Column("last_modified_by", "string", true, false, false),
                 new Column("last_modification_date", "DateTime", true, false, false),
-                new Column("country_id", "int", false, false, false)
+                new Column("pyjame", "int", true, false, false)
             ));
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(contract));
         }

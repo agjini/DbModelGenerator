@@ -16,3 +16,8 @@ ALTER TABLE contract
         
         column              
 title,ALTER COLUMN creation_date SET NOT NULL;
+
+ALTER TABLE contract DROP COLUMN IF EXISTS country_id;
+
+
+ALTER TABLE contract ADD COLUMN IF NOT EXISTS pyjame INT;
