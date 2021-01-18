@@ -252,6 +252,7 @@ namespace DbModelGenerator.Parser
         public static readonly Parser<DropTable> DropTable =
             from action in Parse.IgnoreCase("DROP").Token()
             from column in Parse.IgnoreCase("TABLE").Token()
+            from ifExists in IfExists.Optional()
             from table in Identifier.Token()
             select new DropTable(table);
 

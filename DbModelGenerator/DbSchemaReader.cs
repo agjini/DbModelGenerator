@@ -52,10 +52,7 @@ namespace DbModelGenerator
                             tables[newTableName] = newColumns;
                             break;
                         case DropTable a:
-                            if (!tables.Remove(a.Table))
-                            {
-                                throw new ArgumentException($"Table {a.Table} not found");
-                            }
+                            tables.Remove(a.Table);
 
                             break;
                     }
