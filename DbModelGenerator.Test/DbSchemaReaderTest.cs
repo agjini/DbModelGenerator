@@ -40,13 +40,13 @@ namespace DbModelGenerator.Test
             var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
 
             var brandTable = new Table("brand", ImmutableList.Create(
-                new Column("id", "int", false, true, true),
+                new Column("id", "int", false, false, true),
                 new Column("name", "string", false, false, false),
                 new Column("logo", "string", true, false, false),
                 new Column("archived", "bool", true, false, false),
                 new Column("color", "string", false, false, false),
                 new Column("external_id", "string", true, false, false)
-            ));
+            ), ImmutableSortedSet.Create("id"));
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(brandTable));
         }
 
@@ -61,18 +61,18 @@ namespace DbModelGenerator.Test
             var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
 
             var brandTable = new Table("brand", ImmutableList.Create(
-                new Column("id", "int", false, true, true),
+                new Column("id", "int", false, false, true),
                 new Column("name", "string", false, false, false),
                 new Column("logo", "string", true, false, false),
                 new Column("archived", "bool", true, false, false),
                 new Column("color", "string", false, false, false),
                 new Column("external_id", "string", true, false, false)
-            ));
+            ), ImmutableSortedSet.Create("id"));
             var bbbTable = new Table("bbbb", ImmutableList.Create(
-                new Column("id", "int", false, true, true),
+                new Column("id", "int", false, false, true),
                 new Column("name", "string", false, false, false),
                 new Column("logo", "string", true, false, false)
-            ));
+            ), ImmutableSortedSet.Create("id"));
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(bbbTable, brandTable));
         }
 
@@ -88,16 +88,16 @@ namespace DbModelGenerator.Test
             var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
 
             var bbbTable = new Table("bbbb", ImmutableList.Create(
-                new Column("id", "int", false, true, true),
+                new Column("id", "int", false, false, true),
                 new Column("name", "string", false, false, false),
                 new Column("logo", "string", true, false, false)
-            ));
+            ), ImmutableSortedSet.Create("id"));
             var brandiTable = new Table("brandi", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
                 new Column("pipas", "bool", true, false, false),
                 new Column("nom", "string", false, false, false),
                 new Column("logo", "string", true, false, false)
-            ));
+            ), ImmutableSortedSet<string>.Empty);
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(bbbTable, brandiTable));
         }
 
@@ -116,7 +116,7 @@ namespace DbModelGenerator.Test
                 new Column("lobo", "string", true, false, false),
                 new Column("jiji", "int", false, false, false),
                 new Column("tartuffe", "int", true, false, false)
-            ));
+            ), ImmutableSortedSet<string>.Empty);
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(bbbTable));
         }
 
@@ -131,7 +131,7 @@ namespace DbModelGenerator.Test
             var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
 
             var userProfile = new Table("user_profile", ImmutableList.Create(
-                new Column("id", "int", false, true, true),
+                new Column("id", "int", false, false, true),
                 new Column("firstName", "string", false, false, false),
                 new Column("lastName", "string", false, false, false),
                 new Column("password", "string", false, false, false),
@@ -141,17 +141,17 @@ namespace DbModelGenerator.Test
                 new Column("disabled", "bool", false, false, false),
                 new Column("groupId", "string", false, false, false),
                 new Column("latitude", "decimal", true, false, false)
-            ));
+            ), ImmutableSortedSet.Create("id"));
             var userGroup = new Table("user_group", ImmutableList.Create(
-                new Column("id", "string", false, true, false)
-            ));
+                new Column("id", "string", false, false, false)
+            ), ImmutableSortedSet.Create("id"));
             var userRole = new Table("role", ImmutableList.Create(
-                new Column("id", "string", false, true, false)
-            ));
+                new Column("id", "string", false, false, false)
+            ), ImmutableSortedSet.Create("id"));
             var userGroupRole = new Table("user_group_role", ImmutableList.Create(
-                new Column("groupId", "string", false, true, false),
-                new Column("roleId", "int", false, true, false)
-            ));
+                new Column("groupId", "string", false, false, false),
+                new Column("roleId", "int", false, false, false)
+            ), ImmutableSortedSet.Create("groupId", "roleId"));
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(userRole, userGroup, userGroupRole, userProfile));
         }
 
@@ -166,14 +166,14 @@ namespace DbModelGenerator.Test
             var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
 
             var tenant = new Table("tenant", ImmutableList.Create(
-                new Column("id", "int", false, true, true),
+                new Column("id", "int", false, false, true),
                 new Column("name", "string", true, false, false),
                 new Column("groupId", "int", false, false, false)
-            ));
+            ), ImmutableSortedSet.Create("id"));
             var userGroup = new Table("lamorosso", ImmutableList.Create(
-                new Column("id", "int", false, true, true),
+                new Column("id", "int", false, true, false),
                 new Column("name", "string", true, false, false)
-            ));
+            ), ImmutableSortedSet<string>.Empty);
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(userGroup, tenant));
         }
 
@@ -209,15 +209,59 @@ namespace DbModelGenerator.Test
             var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
 
             var contract = new Table("contract", ImmutableList.Create(
-                new Column("id", "int", false, true, true),
+                new Column("id", "int", false, false, true),
                 new Column("code", "string", false, false, false),
                 new Column("created_by", "string", false, false, false),
                 new Column("creation_date", "DateTime", false, false, false),
                 new Column("last_modified_by", "string", true, false, false),
                 new Column("last_modification_date", "DateTime", true, false, false),
                 new Column("pyjame", "int", true, false, false)
-            ));
+            ), ImmutableSortedSet.Create("id"));
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(contract));
+        }
+
+        [Test]
+        public void ShouldGenerateModelFromScripts9()
+        {
+            var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
+            var scriptsPath = Path.Combine(testProjectDirectory, "Scripts9");
+
+            var dbSchemaReader = new DbSchemaReader();
+
+            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+
+            var contract = new Table("contract", ImmutableList.Create(
+                new Column("id", "int", false, false, true),
+                new Column("code", "string", false, false, false),
+                new Column("title", "int", false, false, false),
+                new Column("created_by", "string", true, false, false),
+                new Column("creation_date", "DateTime", true, false, false),
+                new Column("last_modified_by", "string", true, false, false),
+                new Column("last_modification_date", "DateTime", true, false, false),
+                new Column("country_id", "int", false, false, false)
+            ), ImmutableSortedSet.Create("id"));
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(contract));
+        }
+
+        [Test]
+        public void ShouldGenerateModelFromScripts10()
+        {
+            var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
+            var scriptsPath = Path.Combine(testProjectDirectory, "Scripts10");
+
+            var dbSchemaReader = new DbSchemaReader();
+
+            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+
+            var contract = new Table("contract", ImmutableList.Create(
+                new Column("id", "string", false, false, false)
+            ), ImmutableSortedSet<string>.Empty);
+
+            var other = new Table("other", ImmutableList.Create(
+                new Column("id", "int", false, false, true),
+                new Column("contract_id", "int", false, false, false)
+            ), ImmutableSortedSet.Create("id"));
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(contract, other));
         }
     }
 }

@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace DbModelGenerator.Parser.Ast
+namespace DbModelGenerator.Parser.Ast.Alter
 {
     public sealed class AlterTable : DdlTableStatement
     {

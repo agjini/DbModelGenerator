@@ -1,4 +1,6 @@
-namespace DbModelGenerator.Parser.Ast
+using DbModelGenerator.Parser.Ast.Create;
+
+namespace DbModelGenerator.Parser.Ast.Alter
 {
     public sealed class AddColumn : DdlAlterTableStatement
     {

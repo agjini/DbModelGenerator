@@ -2,7 +2,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DbModelGenerator.Parser.Ast;
+using DbModelGenerator.Parser.Ast.Alter;
 using DbModelGenerator.Parser.Ast.Constraint;
+using DbModelGenerator.Parser.Ast.Create;
 using Sprache;
 
 namespace DbModelGenerator.Parser
@@ -121,7 +123,8 @@ namespace DbModelGenerator.Parser
             from close in Parse.Char(')')
             from sperator4 in Parse.WhiteSpace.Many()
             from attributes in Attributes.Optional()
-            select new ForeignKeyConstraint(columns.ToImmutableList(), attributes.GetOrDefault() ?? "");
+            select new ForeignKeyConstraint(columns.ToImmutableList(),
+                attributes.GetOrDefault() ?? "");
 
         public static readonly Parser<ColumnConstraint> ColumnConstraint =
             from c in PrimaryKeyConstraint
@@ -133,7 +136,7 @@ namespace DbModelGenerator.Parser
             from identifier in ConstraintIdentifier.Optional()
             from sperator in Parse.WhiteSpace.Many()
             from c in ColumnConstraint
-            select new ConstraintDefinition(identifier.GetOrDefault(), c);
+            select new ConstraintDefinition(identifier.ToOption(), c);
 
         public static readonly Parser<AddColumn> AddColumn =
             from add in Parse.IgnoreCase("ADD").Token()
@@ -160,13 +163,13 @@ namespace DbModelGenerator.Parser
             from i in Parse.IgnoreCase("IF").Token()
             from e in Parse.IgnoreCase("EXISTS").Token()
             select true;
-        
+
         public static readonly Parser<bool> IfNotExists =
             from i in Parse.IgnoreCase("IF").Token()
             from n in Parse.IgnoreCase("NOT").Token()
             from e in Parse.IgnoreCase("EXISTS").Token()
             select true;
-        
+
         public static readonly Parser<DropColumn> DropColumn =
             from action in Parse.IgnoreCase("DROP").Token()
             from column in Parse.IgnoreCase("COLUMN").Token().Optional()
@@ -174,21 +177,38 @@ namespace DbModelGenerator.Parser
             from identifier in Identifier.Text()
             select new DropColumn(identifier);
 
-        public static readonly Parser<NotNullAction> NotNullAction =
+        public static readonly Parser<AlterColumnAction> AlterColumnTypeAction =
+            from t in Parse.IgnoreCase("TYPE").Token()
+            from type in Type
+            select AlterColumnAction.AlterType(type);
+
+        public static readonly Parser<AlterColumnAction> NullAlterColumnAction =
             from action in Parse.IgnoreCase("SET")
                 .Or(Parse.IgnoreCase("DROP"))
                 .Token()
                 .Text()
             from not in Parse.IgnoreCase("NOT").Token()
             from n in Parse.IgnoreCase("NULL").Token()
-            select action.ToUpper().Equals("SET") ? Ast.NotNullAction.SetNotNull : Ast.NotNullAction.DropNotNull;
+            select action.ToUpper().Equals("SET")
+                ? AlterColumnAction.SetNotNull()
+                : AlterColumnAction.DropNotNull();
 
         public static readonly Parser<AlterColumn> AlterColumn =
             from alter in Parse.IgnoreCase("ALTER").Token()
             from column in Parse.IgnoreCase("COLUMN").Token().Optional()
             from identifier in Identifier.Token()
-            from action in NotNullAction
+            from action in NullAlterColumnAction.Or(AlterColumnTypeAction)
             select new AlterColumn(identifier, action);
+
+        public static readonly Parser<AddConstraint> AddConstraint =
+            from a in Parse.IgnoreCase("ADD").Token()
+            from c in ConstraintDefinition
+            select new AddConstraint(c);
+
+        public static readonly Parser<DropConstraint> DropConstraint =
+            from a in Parse.IgnoreCase("DROP").Token()
+            from identifier in ConstraintIdentifier
+            select new DropConstraint(identifier);
 
         public static readonly Parser<DdlAlterTableStatement> DdlAlterTableStatement =
             from c in DropColumn
@@ -196,6 +216,8 @@ namespace DbModelGenerator.Parser
                 .Or(AddColumn)
                 .Or(RenameTable)
                 .Or(AlterColumn)
+                .Or(AddConstraint)
+                .Or(DropConstraint)
             select c;
 
         public static readonly Parser<CreateTableStatement> CreateTableStatement =

@@ -73,7 +73,7 @@ namespace DbModelGenerator
             }
 
             var hasPrimaryKeys = table.Columns
-                .Any(c => c.IsPrimaryKey);
+                .Any(c => table.IsPrimaryKey(c.Name));
 
             var matchingInterfaces = entityInterfaces.Where(e => e.Properties.All(p =>
                     table.Columns.Exists(c =>
@@ -127,7 +127,7 @@ namespace DbModelGenerator
 
             foreach (var column in table.Columns)
             {
-                if (primaryKeyAttributeClass != null && column.IsPrimaryKey)
+                if (primaryKeyAttributeClass != null && table.IsPrimaryKey(column.Name))
                 {
                     contentBuilder.Append(
                         $"\t\t[{primaryKeyAttributeClass.Item2}]\n");

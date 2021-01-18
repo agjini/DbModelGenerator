@@ -1,20 +1,39 @@
+using System;
 using System.Collections.Generic;
-using DbModelGenerator.Parser.Ast;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text.RegularExpressions;
+using DbModelGenerator.Parser.Ast.Alter;
 using DbModelGenerator.Parser.Ast.Constraint;
+using DbModelGenerator.Parser.Ast.Create;
 
 namespace DbModelGenerator
 {
     public sealed class ColumnsCollection
     {
-        public ColumnsCollection(List<Column> columns, List<ColumnConstraint> constraints)
+        public ColumnsCollection(ImmutableList<ColumnDefinition> columnDefinitions,
+            ImmutableList<ConstraintDefinition> constraintDefinitions)
         {
-            Columns = columns;
+            var constraints = constraintDefinitions.ToList();
+
+            foreach (var column in columnDefinitions)
+            {
+                if (new Regex(@"PRIMARY KEY", RegexOptions.IgnoreCase).IsMatch(column.Attributes))
+                {
+                    constraints.Add(new ConstraintDefinition(Option<string>.None(),
+                        new PrimaryKeyConstraint(new[] {column.Identifier}.ToImmutableList())));
+                }
+            }
+
+            Columns = columnDefinitions
+                .Select(c => c.ToColumn())
+                .ToList();
             Constraints = constraints;
         }
 
         public List<Column> Columns { get; }
 
-        public List<ColumnConstraint> Constraints { get; }
+        public List<ConstraintDefinition> Constraints { get; }
 
         public bool Remove(string column)
         {
@@ -38,16 +57,45 @@ namespace DbModelGenerator
 
             var existingColumn = Columns[index];
             Columns[index] = new Column(newName, existingColumn.Type, existingColumn.IsNullable,
-                existingColumn.IsPrimaryKey, existingColumn.IsAutoIncrement);
+                existingColumn.IsAutoIncrementByDefinition,
+                existingColumn.IsAutoIncrementByType);
             return true;
         }
 
         public void Add(ColumnDefinition columnDefinition)
         {
-            Columns.Add(columnDefinition.ToColumn(Constraints));
+            Columns.Add(columnDefinition.ToColumn());
         }
 
-        public bool Alter(string column, NotNullAction notNullAction)
+        public ImmutableSortedSet<string> GetPrimaryKeys()
+        {
+            return Columns
+                .Select(c => c.Name)
+                .Where(IsPrimaryKey)
+                .ToImmutableSortedSet(StringComparer.InvariantCultureIgnoreCase);
+        }
+
+        public bool IsPrimaryKey(string columnName)
+        {
+            var index = GetIndex(columnName);
+            if (index == -1)
+            {
+                return false;
+            }
+
+            var column = Columns[index];
+            return Constraints.Exists(c =>
+            {
+                if (c.ColumnConstraint is PrimaryKeyConstraint constraint)
+                {
+                    return constraint.Columns.Contains(column.Name.ToUpper());
+                }
+
+                return false;
+            });
+        }
+
+        public bool Alter(string column, AlterColumnAction alterColumnAction)
         {
             var index = GetIndex(column);
             if (index == -1)
@@ -56,15 +104,68 @@ namespace DbModelGenerator
             }
 
             var previous = Columns[index];
-            Columns[index] = new Column(previous.Name, previous.Type, notNullAction == NotNullAction.DropNotNull,
-                previous.IsPrimaryKey, previous.IsAutoIncrement);
+            var type = previous.Type;
+            var isNullable = previous.IsNullable;
+            var isAutoIncrementByType = previous.IsAutoIncrementByType;
+            switch (alterColumnAction)
+            {
+                case DropNotNull _:
+                    isNullable = true;
+                    break;
+                case SetNotNull _:
+                    isNullable = false;
+                    break;
+                case AlterType a:
+                    isAutoIncrementByType = a.Type.ToUpper().Equals("SERIAL") || a.Type.ToUpper().Equals("BIGSERIAL");
 
+                    type = ColumnParser.ParseType(a.Type);
+                    break;
+            }
+
+            Columns[index] = new Column(previous.Name, type, isNullable,
+                previous.IsAutoIncrementByDefinition, isAutoIncrementByType);
             return true;
         }
 
         private int GetIndex(string column)
         {
             return Columns.FindIndex(c => c.Name.ToUpper().Equals(column.ToUpper()));
+        }
+
+        public void DropConstraint(string table, string identifier)
+        {
+            var index = Constraints.FindIndex(c =>
+            {
+                var name = GetNameOrInfer(table, c);
+                return name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase);
+            });
+            if (index == -1)
+            {
+                return;
+            }
+
+            Constraints.RemoveAt(index);
+        }
+
+        private static string GetNameOrInfer(string table, ConstraintDefinition constraint)
+        {
+            if (!constraint.Identifier.IsEmpty)
+            {
+                return constraint.Identifier.Get();
+            }
+
+            switch (constraint.ColumnConstraint)
+            {
+                case PrimaryKeyConstraint p:
+                    return $"{table}_{string.Join("_", p.Columns)}_pkey";
+            }
+
+            return "undefined";
+        }
+
+        public void AddConstraint(ConstraintDefinition constraintDefinition)
+        {
+            Constraints.Add(constraintDefinition);
         }
     }
 }

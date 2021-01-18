@@ -67,20 +67,23 @@ namespace DbModelGenerator
 
     public sealed class Column
     {
-        public Column(string name, string type, bool isNullable, bool isPrimaryKey, bool isAutoIncrement)
+        public Column(string name, string type, bool isNullable, bool isAutoIncrementByDefinition,
+            bool isAutoIncrementByType)
         {
             Name = name;
             Type = type;
             IsNullable = isNullable;
-            IsPrimaryKey = isPrimaryKey;
-            IsAutoIncrement = isAutoIncrement;
+            IsAutoIncrementByDefinition = isAutoIncrementByDefinition;
+            IsAutoIncrementByType = isAutoIncrementByType;
         }
 
         public string Name { get; }
         public string Type { get; }
         public bool IsNullable { get; }
-        public bool IsPrimaryKey { get; }
-        public bool IsAutoIncrement { get; }
+        public bool IsAutoIncrementByDefinition { get; }
+        public bool IsAutoIncrementByType { get; }
+
+        public bool IsAutoIncrement => IsAutoIncrementByDefinition || IsAutoIncrementByType;
 
         public string TypeAsString()
         {

@@ -1,21 +1,23 @@
 using DbModelGenerator.Parser.Ast.Constraint;
+using DbModelGenerator.Util;
 
-namespace DbModelGenerator.Parser.Ast
+namespace DbModelGenerator.Parser.Ast.Create
 {
     public sealed class ConstraintDefinition : CreateTableStatement
     {
-        public ConstraintDefinition(string name, ColumnConstraint columnConstraint)
+        public ConstraintDefinition(Option<string> identifier, ColumnConstraint columnConstraint)
         {
-            Name = name;
+            Identifier = identifier;
             ColumnConstraint = columnConstraint;
         }
 
-        public string Name { get; }
+        public Option<string> Identifier { get; }
+
         public ColumnConstraint ColumnConstraint { get; }
 
         private bool Equals(ConstraintDefinition other)
         {
-            return Name == other.Name && Equals(ColumnConstraint, other.ColumnConstraint);
+            return Equals(Identifier, other.Identifier) && Equals(ColumnConstraint, other.ColumnConstraint);
         }
 
         public override bool Equals(object obj)
@@ -27,9 +29,14 @@ namespace DbModelGenerator.Parser.Ast
         {
             unchecked
             {
-                return ((Name != null ? Name.GetHashCode() : 0) * 397) ^
+                return ((Identifier != null ? Identifier.GetHashCode() : 0) * 397) ^
                        (ColumnConstraint != null ? ColumnConstraint.GetHashCode() : 0);
             }
+        }
+
+        public override string ToString()
+        {
+            return ToStringHelper.ToString(this);
         }
     }
 }

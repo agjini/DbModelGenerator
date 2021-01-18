@@ -6,6 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using DbModelGenerator.Parser.Ast;
+using DbModelGenerator.Parser.Ast.Alter;
+using DbModelGenerator.Parser.Ast.Constraint;
+using DbModelGenerator.Parser.Ast.Create;
 using Microsoft.Build.Utilities;
 using Sprache;
 
@@ -36,12 +39,7 @@ namespace DbModelGenerator
                     switch (ddlTableStatement)
                     {
                         case CreateTable a:
-                            var columnConstraints = a.ConstraintDefinitions.Select(cd => cd.ColumnConstraint)
-                                .ToList();
-                            var columns = a.ColumnDefinitions
-                                .Select(c => c.ToColumn(columnConstraints))
-                                .ToList();
-                            tables.Add(a.Table, new ColumnsCollection(columns, columnConstraints));
+                            tables.Add(a.Table, new ColumnsCollection(a.ColumnDefinitions, a.ConstraintDefinitions));
                             break;
                         case AlterTable a:
                             if (!tables.ContainsKey(a.Table))
@@ -65,7 +63,7 @@ namespace DbModelGenerator
             }
 
             return new Schema(scriptDirectory, tables
-                .Select(e => new Table(e.Key, e.Value.Columns.ToImmutableList()))
+                .Select(e => new Table(e.Key, e.Value.Columns.ToImmutableList(), e.Value.GetPrimaryKeys()))
                 .ToImmutableList());
         }
 
@@ -94,7 +92,7 @@ namespace DbModelGenerator
 
                         break;
                     case AlterColumn a:
-                        if (!columns.Alter(a.Column, a.NotNullAction))
+                        if (!columns.Alter(a.Column, a.AlterColumnAction))
                         {
                             throw new ArgumentException($"Column '{alterTable.Table}.{a.Column}' does not exist");
                         }
@@ -109,6 +107,17 @@ namespace DbModelGenerator
                         break;
                     case RenameTable r:
                         table = r.NewName;
+
+                        break;
+                    case AddConstraint a:
+                        if (a.ConstraintDefinition.ColumnConstraint is PrimaryKeyConstraint p)
+                        {
+                            columns.AddConstraint(a.ConstraintDefinition);
+                        }
+
+                        break;
+                    case DropConstraint d:
+                        columns.DropConstraint(table, d.Identifier);
 
                         break;
                 }

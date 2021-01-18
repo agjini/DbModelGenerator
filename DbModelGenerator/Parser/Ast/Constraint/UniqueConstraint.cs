@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace DbModelGenerator.Parser.Ast.Constraint
 {
@@ -14,7 +13,7 @@ namespace DbModelGenerator.Parser.Ast.Constraint
 
         protected bool Equals(UniqueConstraint other)
         {
-            return ReferenceEquals(Columns, other.Columns) || Columns.SequenceEqual(other.Columns);
+            return Equals(Columns, other.Columns);
         }
 
         public override bool Equals(object obj)

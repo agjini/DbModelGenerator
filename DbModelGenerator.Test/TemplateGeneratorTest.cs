@@ -14,7 +14,8 @@ namespace DbModelGenerator.Test
         public void GenerateAClassForOneTable()
         {
             var table = new Table("user_profile",
-                new[] {new Column("id", "string", false, true, false)}.ToImmutableList());
+                new[] {new Column("id", "string", false, false, false)}.ToImmutableList(),
+                ImmutableSortedSet.Create("id"));
 
             var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "db");
 
@@ -42,7 +43,8 @@ namespace Project.Generated.Global
         public void GenerateAClassForOneTableWithUsing()
         {
             var table = new Table("user_profile",
-                new[] {new Column("id", "Guid", false, true, false)}.ToImmutableList());
+                new[] {new Column("id", "Guid", false, false, false)}.ToImmutableList(),
+                ImmutableSortedSet.Create("id"));
 
             var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "Db");
 
@@ -72,7 +74,8 @@ namespace Project.Generated.Global
         public void GenerateAClassForOneTableWithUsingAndIdentity()
         {
             var table = new Table("user_profile",
-                new[] {new Column("id", "Guid", false, true, false)}.ToImmutableList());
+                new[] {new Column("id", "Guid", false, false, false)}.ToImmutableList(),
+                ImmutableSortedSet.Create("id"));
 
             var actual =
                 TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null,
@@ -106,13 +109,16 @@ namespace Project.Generated.Global
             var table = new Table("user_profile",
                 new[]
                 {
-                    new Column("role_id", "int", false, true, true), new Column("group_id", "int", false, true, false)
-                }.ToImmutableList());
+                    new Column("role_id", "int", false, true, true),
+                    new Column("group_id", "int", false, false, false)
+                }.ToImmutableList(),
+                ImmutableSortedSet.Create("role_id", "group_id"));
 
             var actual =
-                TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity;Odin.Api.IRoleEntity(role_id);Odin.Api.IGroupEntity(role_id,group_id!);Odin.Api.Entity.IDbEntity(model_id,created_by,creation_date,modified_by,modification_date)", 
-	                "Odin.Api.PrimaryKey", 
-	                "Odin.Api.Generated",
+                TemplateGenerator.GenerateClass("Project.Generated.Global", table,
+                    "Odin.Api.IIdentity;Odin.Api.IRoleEntity(role_id);Odin.Api.IGroupEntity(role_id,group_id!);Odin.Api.Entity.IDbEntity(model_id,created_by,creation_date,modified_by,modification_date)",
+                    "Odin.Api.PrimaryKey",
+                    "Odin.Api.Generated",
                     null);
 
             const string expected = @"using Odin.Api;

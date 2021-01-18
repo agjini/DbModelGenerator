@@ -1,5 +1,5 @@
 using System;
-using Odin.Api.Util;
+using DbModelGenerator.Util;
 
 namespace DbModelGenerator
 {

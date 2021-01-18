@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using System.Linq;
+using DbModelGenerator.Util;
 
 namespace DbModelGenerator.Parser.Ast.Constraint
 {
@@ -14,7 +14,7 @@ namespace DbModelGenerator.Parser.Ast.Constraint
 
         protected bool Equals(PrimaryKeyConstraint other)
         {
-            return ReferenceEquals(Columns, other.Columns) || Columns.SequenceEqual(other.Columns);
+            return Equals(Columns, other.Columns);
         }
 
         public override bool Equals(object obj)
@@ -28,6 +28,11 @@ namespace DbModelGenerator.Parser.Ast.Constraint
         public override int GetHashCode()
         {
             return (Columns != null ? Columns.GetHashCode() : 0);
+        }
+
+        public override string ToString()
+        {
+            return ToStringHelper.ToString(this);
         }
     }
 }

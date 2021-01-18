@@ -30,7 +30,8 @@ namespace DbModelGenerator.Parser.Ast.Constraint
         {
             unchecked
             {
-                return ((Columns != null ? Columns.GetHashCode() : 0) * 397) ^ (Attributes != null ? Attributes.GetHashCode() : 0);
+                return ((Columns != null ? Columns.GetHashCode() : 0) * 397) ^
+                       (Attributes != null ? Attributes.GetHashCode() : 0);
             }
         }
     }

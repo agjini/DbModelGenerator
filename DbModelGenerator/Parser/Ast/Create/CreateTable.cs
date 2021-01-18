@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace DbModelGenerator.Parser.Ast
+namespace DbModelGenerator.Parser.Ast.Create
 {
     public sealed class CreateTable : DdlTableStatement
     {

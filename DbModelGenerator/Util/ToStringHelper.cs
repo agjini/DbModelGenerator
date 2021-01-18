@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Odin.Api.Util
+namespace DbModelGenerator.Util
 {
     public static class ToStringHelper
     {

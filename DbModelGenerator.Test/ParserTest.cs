@@ -1,7 +1,9 @@
 using System.Collections.Immutable;
 using System.Linq;
-using DbModelGenerator.Parser.Ast;
+using DbModelGenerator.Parser.Ast.Alter;
 using DbModelGenerator.Parser.Ast.Constraint;
+using DbModelGenerator.Parser.Ast.Create;
+using DeepEqual.Syntax;
 using NUnit.Framework;
 using Sprache;
 
@@ -101,12 +103,12 @@ namespace DbModelGenerator.Test
                     new ColumnDefinition("external_id", "VARCHAR", "")
                 ), tested.ColumnDefinitions);
 
-
-            CollectionAssert.AreEqual(
-                ImmutableList.Create(
-                    new ConstraintDefinition(null, new PrimaryKeyConstraint(ImmutableList.Create("ID"))),
-                    new ConstraintDefinition("bibi_uk", new UniqueConstraint(ImmutableList.Create("name")))
-                ), tested.ConstraintDefinitions);
+            tested.ConstraintDefinitions.ShouldDeepEqual(ImmutableList.Create(
+                new ConstraintDefinition(Option<string>.None(),
+                    new PrimaryKeyConstraint(ImmutableList.Create("ID"))),
+                new ConstraintDefinition("bibi_uk".ToOption(),
+                    new UniqueConstraint(ImmutableList.Create("name")))
+            ));
         }
 
         [Test]
@@ -170,7 +172,7 @@ namespace DbModelGenerator.Test
             Assert.IsInstanceOf<AlterColumn>(tested.DdlAlterTableStatements[0]);
 
             Assert.AreEqual("name", ((AlterColumn) tested.DdlAlterTableStatements[0]).Column);
-            Assert.AreEqual(NotNullAction.SetNotNull, ((AlterColumn) tested.DdlAlterTableStatements[0]).NotNullAction);
+            Assert.IsInstanceOf<SetNotNull>(((AlterColumn) tested.DdlAlterTableStatements[0]).AlterColumnAction);
         }
 
         [Test]
