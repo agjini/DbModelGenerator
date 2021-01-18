@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using DbModelGenerator.Parser.Ast.Alter;
@@ -105,9 +106,9 @@ namespace DbModelGenerator.Test
 
             tested.ConstraintDefinitions.ShouldDeepEqual(ImmutableList.Create(
                 new ConstraintDefinition(Option<string>.None(),
-                    new PrimaryKeyConstraint(ImmutableList.Create("ID"))),
+                    new PrimaryKeyConstraint(ImmutableSortedSet.Create(StringComparer.CurrentCultureIgnoreCase, "ID"))),
                 new ConstraintDefinition("bibi_uk".ToOption(),
-                    new UniqueConstraint(ImmutableList.Create("name")))
+                    new UniqueConstraint(ImmutableSortedSet.Create(StringComparer.CurrentCultureIgnoreCase, "name")))
             ));
         }
 

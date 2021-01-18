@@ -4,13 +4,14 @@ namespace DbModelGenerator.Parser.Ast.Constraint
 {
     public class ForeignKeyConstraint : ColumnConstraint
     {
-        public ForeignKeyConstraint(ImmutableList<string> columns, string attributes)
+        public ForeignKeyConstraint(ImmutableSortedSet<string> columns, string attributes)
         {
             Columns = columns;
             Attributes = attributes;
         }
 
-        public ImmutableList<string> Columns { get; }
+        public sealed override ImmutableSortedSet<string> Columns { get; protected set; }
+
         public string Attributes { get; }
 
         protected bool Equals(ForeignKeyConstraint other)

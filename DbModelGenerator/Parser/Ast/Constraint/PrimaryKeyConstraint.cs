@@ -5,12 +5,12 @@ namespace DbModelGenerator.Parser.Ast.Constraint
 {
     public class PrimaryKeyConstraint : ColumnConstraint
     {
-        public PrimaryKeyConstraint(ImmutableList<string> columns)
+        public PrimaryKeyConstraint(ImmutableSortedSet<string> columns)
         {
             Columns = columns;
         }
 
-        public ImmutableList<string> Columns { get; }
+        public sealed override ImmutableSortedSet<string> Columns { get; protected set; }
 
         protected bool Equals(PrimaryKeyConstraint other)
         {

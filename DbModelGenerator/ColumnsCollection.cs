@@ -21,7 +21,9 @@ namespace DbModelGenerator
                 if (new Regex(@"PRIMARY KEY", RegexOptions.IgnoreCase).IsMatch(column.Attributes))
                 {
                     constraints.Add(new ConstraintDefinition(Option<string>.None(),
-                        new PrimaryKeyConstraint(new[] {column.Identifier}.ToImmutableList())));
+                        new PrimaryKeyConstraint(
+                            new[] {column.Identifier}.ToImmutableSortedSet(StringComparer
+                                .InvariantCultureIgnoreCase))));
                 }
             }
 
@@ -49,6 +51,11 @@ namespace DbModelGenerator
 
         public bool Rename(string column, string newName)
         {
+            foreach (var constraintDefinition in Constraints)
+            {
+                constraintDefinition.ColumnConstraint.RenameColumn(column, newName);
+            }
+
             var index = GetIndex(column);
             if (index == -1)
             {
@@ -88,7 +95,7 @@ namespace DbModelGenerator
             {
                 if (c.ColumnConstraint is PrimaryKeyConstraint constraint)
                 {
-                    return constraint.Columns.Contains(column.Name.ToUpper());
+                    return constraint.Columns.Contains(column.Name);
                 }
 
                 return false;

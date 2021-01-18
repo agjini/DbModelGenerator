@@ -173,7 +173,7 @@ namespace DbModelGenerator.Test
             var userGroup = new Table("lamorosso", ImmutableList.Create(
                 new Column("id", "int", false, true, false),
                 new Column("name", "string", true, false, false)
-            ), ImmutableSortedSet<string>.Empty);
+            ), ImmutableSortedSet.Create("id"));
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(userGroup, tenant));
         }
 
@@ -281,6 +281,27 @@ namespace DbModelGenerator.Test
                 new Column("default_group_id", "int", true, false, false),
                 new Column("default_culture_id", "string", true, false, false)
             ), ImmutableSortedSet.Create("tenant_id"));
+
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(tenant_saml));
+        }
+
+        [Test]
+        public void ShouldGenerateModelFromScripts12()
+        {
+            var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
+            var scriptsPath = Path.Combine(testProjectDirectory, "Scripts12");
+
+            var dbSchemaReader = new DbSchemaReader();
+
+            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+
+            var tenant_saml = new Table("tenant_saml", ImmutableList.Create(
+                new Column("new_tenant_id", "string", false, false, false),
+                new Column("is_enabled", "bool", false, false, false),
+                new Column("identity_provider_metadata", "string", false, false, false),
+                new Column("default_group_id", "int", true, false, false),
+                new Column("default_culture_id", "string", true, false, false)
+            ), ImmutableSortedSet.Create("new_tenant_id"));
 
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(tenant_saml));
         }

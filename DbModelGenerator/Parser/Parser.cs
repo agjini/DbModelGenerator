@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -104,14 +105,15 @@ namespace DbModelGenerator.Parser
             from open in Parse.Char('(').Token()
             from columns in Identifier.DelimitedBy(Parse.Char(',').Token())
             from close in Parse.Char(')').Token()
-            select new PrimaryKeyConstraint(columns.Select(c => c.ToUpper()).ToImmutableList());
+            select new PrimaryKeyConstraint(columns.Select(c => c.ToUpper())
+                .ToImmutableSortedSet(StringComparer.InvariantCultureIgnoreCase));
 
         public static readonly Parser<UniqueConstraint> UniqueConstraint =
             from type in Parse.IgnoreCase("UNIQUE").Token()
             from open in Parse.Char('(').Token()
             from columns in Identifier.DelimitedBy(Parse.Char(',').Token())
             from close in Parse.Char(')').Token()
-            select new UniqueConstraint(columns.ToImmutableList());
+            select new UniqueConstraint(columns.ToImmutableSortedSet(StringComparer.InvariantCultureIgnoreCase));
 
         public static readonly Parser<ForeignKeyConstraint> ForeignKeyConstraint =
             from type in Parse.Regex(new Regex(@"FOREIGN\s+KEY", RegexOptions.IgnoreCase))
@@ -123,7 +125,7 @@ namespace DbModelGenerator.Parser
             from close in Parse.Char(')')
             from sperator4 in Parse.WhiteSpace.Many()
             from attributes in Attributes.Optional()
-            select new ForeignKeyConstraint(columns.ToImmutableList(),
+            select new ForeignKeyConstraint(columns.ToImmutableSortedSet(StringComparer.InvariantCultureIgnoreCase),
                 attributes.GetOrDefault() ?? "");
 
         public static readonly Parser<ColumnConstraint> ColumnConstraint =

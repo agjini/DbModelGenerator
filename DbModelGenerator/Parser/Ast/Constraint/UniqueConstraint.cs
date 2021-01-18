@@ -4,12 +4,12 @@ namespace DbModelGenerator.Parser.Ast.Constraint
 {
     public class UniqueConstraint : ColumnConstraint
     {
-        public UniqueConstraint(ImmutableList<string> columns)
+        public UniqueConstraint(ImmutableSortedSet<string> columns)
         {
             Columns = columns;
         }
 
-        public ImmutableList<string> Columns { get; }
+        public sealed override ImmutableSortedSet<string> Columns { get; protected set; }
 
         protected bool Equals(UniqueConstraint other)
         {
