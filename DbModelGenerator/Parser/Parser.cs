@@ -97,6 +97,7 @@ namespace DbModelGenerator.Parser
 
         public static readonly Parser<string> ConstraintIdentifier =
             from add in Parse.IgnoreCase("CONSTRAINT").Token()
+            from ifExists in IfExists.Optional()
             from identifier in Identifier
             select identifier;
 
