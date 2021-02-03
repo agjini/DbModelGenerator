@@ -33,6 +33,8 @@ namespace DbModelGenerator.Parser
                   && i.ToUpper() != "CONSTRAINT"
                   && i.ToUpper() != "TABLE"
                   && i.ToUpper() != "COLUMN"
+                  && i.ToUpper() != "IF"
+                  && i.ToUpper() != "EXISTS"
             select i;
 
         public static readonly Parser<string> SimpleQuoteDelimitedIdentifierName =
@@ -95,7 +97,7 @@ namespace DbModelGenerator.Parser
             from a in Attributes.Optional()
             select new ColumnDefinition(identifier, type, a.GetOrDefault());
 
-        public static readonly Parser<string> ConstraintIdentifier =
+        private static readonly Parser<string> ConstraintIdentifier =
             from add in Parse.IgnoreCase("CONSTRAINT").Token()
             from identifier in Identifier
             select identifier;
@@ -210,6 +212,7 @@ namespace DbModelGenerator.Parser
         public static readonly Parser<DropConstraint> DropConstraint =
             from a in Parse.IgnoreCase("DROP").Token()
             from identifier in ConstraintIdentifier
+            from ifExists in IfExists.Optional()
             select new DropConstraint(identifier);
 
         public static readonly Parser<DdlAlterTableStatement> DdlAlterTableStatement =

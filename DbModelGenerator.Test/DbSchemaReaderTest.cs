@@ -305,5 +305,25 @@ namespace DbModelGenerator.Test
 
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(tenant_saml));
         }
+
+        [Test]
+        public void ShouldGenerateModelFromScripts13()
+        {
+            var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
+            var scriptsPath = Path.Combine(testProjectDirectory, "Scripts13");
+
+            var dbSchemaReader = new DbSchemaReader();
+
+            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+
+            var table = new Table("user_grid_state", ImmutableList.Create(
+                new Column("id", "int", false, false, true),
+                new Column("filter_expression", "string", true, false, false),
+                new Column("shared_view_id", "int", true, false, false),
+                new Column("is_sharded", "bool", false, false, false)
+            ), ImmutableSortedSet.Create("id"));
+
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(table));
+        }
     }
 }
