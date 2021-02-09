@@ -234,6 +234,7 @@ namespace DbModelGenerator.Parser
             from action in Parse.IgnoreCase("CREATE")
             from sperator in Parse.WhiteSpace.Many()
             from column in Parse.IgnoreCase("TABLE")
+            from ifNotExists in IfNotExists.Optional()         
             from sperator1 in Parse.WhiteSpace.Many()
             from table in Identifier
             from sperator2 in Parse.WhiteSpace.Many()
