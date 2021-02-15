@@ -325,5 +325,23 @@ namespace DbModelGenerator.Test
 
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(table));
         }
+        
+        [Test]
+        public void ShouldGenerateModelFromScripts14()
+        {
+            var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
+            var scriptsPath = Path.Combine(testProjectDirectory, "Scripts14");
+
+            var dbSchemaReader = new DbSchemaReader();
+
+            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+
+            var table = new Table("user_grid_state", ImmutableList.Create(
+                new Column("id", "int", false, false, true),
+                new Column("filter_expression", "string", true, false, false)
+            ), ImmutableSortedSet.Create("id"));
+
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(table));
+        }
     }
 }
