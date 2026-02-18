@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DbModelGenerator.Test
 {
@@ -14,7 +15,7 @@ namespace DbModelGenerator.Test
         public void GenerateAClassForOneTable()
         {
             var table = new Table("user_profile",
-                new[] {new Column("id", "string", false, false, false)}.ToImmutableList(),
+                new[] { new Column("id", "string", false, false, false) }.ToImmutableList(),
                 ImmutableSortedSet.Create("id"));
 
             var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "db");
@@ -36,14 +37,14 @@ namespace Project.Generated.Global
 	}
 
 }";
-            Assert.AreEqual(expected, actual);
+            ClassicAssert.AreEqual(expected, actual);
         }
 
         [Test]
         public void GenerateAClassForOneTableWithUsing()
         {
             var table = new Table("user_profile",
-                new[] {new Column("id", "Guid", false, false, false)}.ToImmutableList(),
+                new[] { new Column("id", "Guid", false, false, false) }.ToImmutableList(),
                 ImmutableSortedSet.Create("id"));
 
             var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "Db");
@@ -66,7 +67,7 @@ namespace Project.Generated.Global
 	}
 
 }";
-            Assert.AreEqual(expected, actual);
+            ClassicAssert.AreEqual(expected, actual);
         }
 
 
@@ -74,7 +75,7 @@ namespace Project.Generated.Global
         public void GenerateAClassForOneTableWithUsingAndIdentity()
         {
             var table = new Table("user_profile",
-                new[] {new Column("id", "Guid", false, false, false)}.ToImmutableList(),
+                new[] { new Column("id", "Guid", false, false, false) }.ToImmutableList(),
                 ImmutableSortedSet.Create("id"));
 
             var actual =
@@ -100,7 +101,7 @@ namespace Project.Generated.Global
 	}
 
 }";
-            Assert.AreEqual(expected, actual);
+            ClassicAssert.AreEqual(expected, actual);
         }
 
         [Test]
@@ -145,7 +146,7 @@ namespace Project.Generated.Global
 	}
 
 }";
-            Assert.AreEqual(expected, actual);
+            ClassicAssert.AreEqual(expected, actual);
         }
     }
 }

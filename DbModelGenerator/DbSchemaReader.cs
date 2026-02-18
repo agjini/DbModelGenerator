@@ -42,12 +42,12 @@ namespace DbModelGenerator
                             tables.Add(a.Table, new ColumnsCollection(a.ColumnDefinitions, a.ConstraintDefinitions));
                             break;
                         case AlterTable a:
-                            if (!tables.ContainsKey(a.Table))
+                            if (!tables.TryGetValue(a.Table, out var table))
                             {
                                 throw new ArgumentException($"Table {a.Table} not found");
                             }
 
-                            var (newTableName, newColumns) = AlterColumns(tables[a.Table], a);
+                            var (newTableName, newColumns) = AlterColumns(table, a);
                             tables.Remove(a.Table);
                             tables[newTableName] = newColumns;
                             break;
@@ -107,7 +107,7 @@ namespace DbModelGenerator
 
                         break;
                     case AddConstraint a:
-                        if (a.ConstraintDefinition.ColumnConstraint is PrimaryKeyConstraint p)
+                        if (a.ConstraintDefinition.ColumnConstraint is PrimaryKeyConstraint _)
                         {
                             columns.AddConstraint(a.ConstraintDefinition);
                         }
