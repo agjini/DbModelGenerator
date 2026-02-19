@@ -6,6 +6,7 @@ using DbModelGenerator.Parser.Ast.Constraint;
 using DbModelGenerator.Parser.Ast.Create;
 using DeepEqual.Syntax;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using Sprache;
 
 namespace DbModelGenerator.Test
@@ -17,27 +18,27 @@ namespace DbModelGenerator.Test
         public void ShouldParseColumnDefinition()
         {
             var columnDefinition = Parser.Parser.ColumnDefinition.Parse("   id  INT ");
-            Assert.AreEqual("id", columnDefinition.Identifier);
-            Assert.AreEqual("INT", columnDefinition.Type);
-            Assert.AreEqual("", columnDefinition.Attributes);
+            ClassicAssert.AreEqual("id", columnDefinition.Identifier);
+            ClassicAssert.AreEqual("INT", columnDefinition.Type);
+            ClassicAssert.AreEqual("", columnDefinition.Attributes);
         }
 
         [Test]
         public void ShouldParseColumnDefinitionWithAttributes()
         {
             var columnDefinition = Parser.Parser.ColumnDefinition.Parse("   id  INT  noT NULL  DEFAULT 10.4   \n");
-            Assert.AreEqual("id", columnDefinition.Identifier);
-            Assert.AreEqual("INT", columnDefinition.Type);
-            Assert.AreEqual("noT NULL DEFAULT 10.4", columnDefinition.Attributes);
+            ClassicAssert.AreEqual("id", columnDefinition.Identifier);
+            ClassicAssert.AreEqual("INT", columnDefinition.Type);
+            ClassicAssert.AreEqual("noT NULL DEFAULT 10.4", columnDefinition.Attributes);
         }
 
         [Test]
         public void ShouldParseAddColumn()
         {
             var addColumn = Parser.Parser.AddColumn.Parse("ADD COlumn  id  INT noT NULL  DEFAULT '0'");
-            Assert.AreEqual("id", addColumn.ColumnDefinition.Identifier);
-            Assert.AreEqual("INT", addColumn.ColumnDefinition.Type);
-            Assert.AreEqual("noT NULL DEFAULT '0'", addColumn.ColumnDefinition.Attributes);
+            ClassicAssert.AreEqual("id", addColumn.ColumnDefinition.Identifier);
+            ClassicAssert.AreEqual("INT", addColumn.ColumnDefinition.Type);
+            ClassicAssert.AreEqual("noT NULL DEFAULT '0'", addColumn.ColumnDefinition.Attributes);
         }
 
         [Test]
@@ -46,9 +47,9 @@ namespace DbModelGenerator.Test
             var actual =
                 Parser.Parser.ColumnDefinition.Parse(
                     "user_group_id                 INT          NOT NULL REFERENCES \"user_group\" (id)");
-            Assert.AreEqual("user_group_id", actual.Identifier);
-            Assert.AreEqual("INT", actual.Type);
-            Assert.AreEqual("NOT NULL REFERENCES \"user_group\" (id)", actual.Attributes);
+            ClassicAssert.AreEqual("user_group_id", actual.Identifier);
+            ClassicAssert.AreEqual("INT", actual.Type);
+            ClassicAssert.AreEqual("NOT NULL REFERENCES \"user_group\" (id)", actual.Attributes);
         }
 
         [Test]
@@ -56,24 +57,24 @@ namespace DbModelGenerator.Test
         {
             var addColumn =
                 Parser.Parser.AddColumn.Parse("ADD COlumn  id  INT \n\t NULL  DEFAULT (233 ) CHECK (id > 0)");
-            Assert.AreEqual("id", addColumn.ColumnDefinition.Identifier);
-            Assert.AreEqual("INT", addColumn.ColumnDefinition.Type);
-            Assert.AreEqual("NULL DEFAULT (233) CHECK (id > 0)", addColumn.ColumnDefinition.Attributes);
+            ClassicAssert.AreEqual("id", addColumn.ColumnDefinition.Identifier);
+            ClassicAssert.AreEqual("INT", addColumn.ColumnDefinition.Type);
+            ClassicAssert.AreEqual("NULL DEFAULT (233) CHECK (id > 0)", addColumn.ColumnDefinition.Attributes);
         }
 
         [Test]
         public void ShouldParseRenameColumn()
         {
             var tested = Parser.Parser.RenameColumn.Parse("rename COlumn  id  TO  vignemale");
-            Assert.AreEqual("id", tested.Column);
-            Assert.AreEqual("vignemale", tested.NewName);
+            ClassicAssert.AreEqual("id", tested.Column);
+            ClassicAssert.AreEqual("vignemale", tested.NewName);
         }
 
         [Test]
         public void ShouldParseDropColumn()
         {
             var tested = Parser.Parser.DropColumn.Parse("dRoP  \n COlumn id");
-            Assert.AreEqual("id", tested.Column);
+            ClassicAssert.AreEqual("id", tested.Column);
         }
 
         [Test]
@@ -91,8 +92,8 @@ namespace DbModelGenerator.Test
                 CONSTRAINT   bibi_uk   UNIQUE (name)
             )
             ");
-            Assert.AreEqual("brand", tested.Table);
-            Assert.AreEqual(6, tested.ColumnDefinitions.Count);
+            ClassicAssert.AreEqual("brand", tested.Table);
+            ClassicAssert.AreEqual(6, tested.ColumnDefinitions.Count);
 
             CollectionAssert.AreEqual(
                 ImmutableList.Create(
@@ -126,7 +127,7 @@ namespace DbModelGenerator.Test
                 .DelimitedBy(Parse.Char(','))
                 .Parse(@"id          SERIAL       NOT NULL,
     name        VARCHAR(50)  NOT NULL");
-            Assert.AreEqual(2, tested.Count());
+            ClassicAssert.AreEqual(2, tested.Count());
         }
 
         [Test]
@@ -137,15 +138,15 @@ namespace DbModelGenerator.Test
         ColumN    name        VARCHAR(50) 
         NOT NULL
             ");
-            Assert.AreEqual("brand", tested.Table);
-            Assert.AreEqual(1, tested.DdlAlterTableStatements.Count);
-            Assert.IsInstanceOf<AddColumn>(tested.DdlAlterTableStatements[0]);
+            ClassicAssert.AreEqual("brand", tested.Table);
+            ClassicAssert.AreEqual(1, tested.DdlAlterTableStatements.Count);
+            ClassicAssert.IsInstanceOf<AddColumn>(tested.DdlAlterTableStatements[0]);
             var addColumn = tested.DdlAlterTableStatements[0] as AddColumn;
 
-            Assert.AreEqual("name", addColumn!.Column);
-            Assert.AreEqual("name", addColumn.ColumnDefinition.Identifier);
-            Assert.AreEqual("VARCHAR", addColumn.ColumnDefinition.Type);
-            Assert.AreEqual("NOT NULL", addColumn.ColumnDefinition.Attributes);
+            ClassicAssert.AreEqual("name", addColumn!.Column);
+            ClassicAssert.AreEqual("name", addColumn.ColumnDefinition.Identifier);
+            ClassicAssert.AreEqual("VARCHAR", addColumn.ColumnDefinition.Type);
+            ClassicAssert.AreEqual("NOT NULL", addColumn.ColumnDefinition.Attributes);
         }
 
         [Test]
@@ -153,11 +154,11 @@ namespace DbModelGenerator.Test
         {
             var tested = Parser.Parser.AlterTable.Parse(@"alTer    
     tablE brand DROP COLUMN name");
-            Assert.AreEqual("brand", tested.Table);
-            Assert.AreEqual(1, tested.DdlAlterTableStatements.Count);
-            Assert.IsInstanceOf<DropColumn>(tested.DdlAlterTableStatements[0]);
+            ClassicAssert.AreEqual("brand", tested.Table);
+            ClassicAssert.AreEqual(1, tested.DdlAlterTableStatements.Count);
+            ClassicAssert.IsInstanceOf<DropColumn>(tested.DdlAlterTableStatements[0]);
 
-            Assert.AreEqual("name", ((DropColumn) tested.DdlAlterTableStatements[0]).Column);
+            ClassicAssert.AreEqual("name", ((DropColumn) tested.DdlAlterTableStatements[0]).Column);
         }
 
         [Test]
@@ -168,12 +169,12 @@ namespace DbModelGenerator.Test
         
         COLUMN name set noT
         NUll");
-            Assert.AreEqual("brand", tested.Table);
-            Assert.AreEqual(1, tested.DdlAlterTableStatements.Count);
-            Assert.IsInstanceOf<AlterColumn>(tested.DdlAlterTableStatements[0]);
+            ClassicAssert.AreEqual("brand", tested.Table);
+            ClassicAssert.AreEqual(1, tested.DdlAlterTableStatements.Count);
+            ClassicAssert.IsInstanceOf<AlterColumn>(tested.DdlAlterTableStatements[0]);
 
-            Assert.AreEqual("name", ((AlterColumn) tested.DdlAlterTableStatements[0]).Column);
-            Assert.IsInstanceOf<SetNotNull>(((AlterColumn) tested.DdlAlterTableStatements[0]).AlterColumnAction);
+            ClassicAssert.AreEqual("name", ((AlterColumn) tested.DdlAlterTableStatements[0]).Column);
+            ClassicAssert.IsInstanceOf<SetNotNull>(((AlterColumn) tested.DdlAlterTableStatements[0]).AlterColumnAction);
         }
 
         [Test]
@@ -183,14 +184,14 @@ namespace DbModelGenerator.Test
     tablE brand RENAME   
         ColumN    name      tO bo_bo
             ");
-            Assert.AreEqual("brand", tested.Table);
-            Assert.AreEqual(1, tested.DdlAlterTableStatements.Count);
-            Assert.IsInstanceOf<RenameColumn>(tested.DdlAlterTableStatements[0]);
+            ClassicAssert.AreEqual("brand", tested.Table);
+            ClassicAssert.AreEqual(1, tested.DdlAlterTableStatements.Count);
+            ClassicAssert.IsInstanceOf<RenameColumn>(tested.DdlAlterTableStatements[0]);
 
             var renameColumn = tested.DdlAlterTableStatements[0] as RenameColumn;
 
-            Assert.AreEqual("name", renameColumn!.Column);
-            Assert.AreEqual("bo_bo", renameColumn.NewName);
+            ClassicAssert.AreEqual("name", renameColumn!.Column);
+            ClassicAssert.AreEqual("bo_bo", renameColumn.NewName);
         }
     }
 }

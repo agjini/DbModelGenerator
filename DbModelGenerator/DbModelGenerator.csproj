@@ -31,8 +31,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.0.461" />
-        <PackageReference Include="Sprache" Version="2.3.0" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.3.3" />
+        <PackageReference Include="Sprache" Version="2.3.1" />
+        <PackageReference Include="System.Collections.Immutable" Version="10.0.3" />
     </ItemGroup>
 
     <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">

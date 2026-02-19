@@ -7,6 +7,7 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Moq;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DbModelGenerator.Test
 {
@@ -187,15 +188,15 @@ namespace DbModelGenerator.Test
 
             var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
 
-            Assert.AreEqual(8, actual.Tables.Count());
-            Assert.AreEqual(2, actual.Tables.First(t => t.Name == "group_type").Columns.Count);
-            Assert.AreEqual(8, actual.Tables.First(t => t.Name == "group_type_available_scope").Columns.Count);
-            Assert.AreEqual(3, actual.Tables.First(t => t.Name == "role").Columns.Count);
-            Assert.AreEqual(5, actual.Tables.First(t => t.Name == "user_group").Columns.Count);
-            Assert.AreEqual(30, actual.Tables.First(t => t.Name == "user_profile").Columns.Count);
-            Assert.AreEqual(2, actual.Tables.First(t => t.Name == "user_group_role").Columns.Count);
-            Assert.AreEqual(6, actual.Tables.First(t => t.Name == "user_scope_access").Columns.Count);
-            Assert.AreEqual(10, actual.Tables.First(t => t.Name == "user_grid_state").Columns.Count);
+            ClassicAssert.AreEqual(8, actual.Tables.Count());
+            ClassicAssert.AreEqual(2, actual.Tables.First(t => t.Name == "group_type").Columns.Count);
+            ClassicAssert.AreEqual(8, actual.Tables.First(t => t.Name == "group_type_available_scope").Columns.Count);
+            ClassicAssert.AreEqual(3, actual.Tables.First(t => t.Name == "role").Columns.Count);
+            ClassicAssert.AreEqual(5, actual.Tables.First(t => t.Name == "user_group").Columns.Count);
+            ClassicAssert.AreEqual(30, actual.Tables.First(t => t.Name == "user_profile").Columns.Count);
+            ClassicAssert.AreEqual(2, actual.Tables.First(t => t.Name == "user_group_role").Columns.Count);
+            ClassicAssert.AreEqual(6, actual.Tables.First(t => t.Name == "user_scope_access").Columns.Count);
+            ClassicAssert.AreEqual(10, actual.Tables.First(t => t.Name == "user_grid_state").Columns.Count);
         }
 
         [Test]
@@ -274,7 +275,7 @@ namespace DbModelGenerator.Test
 
             var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
 
-            var tenant_saml = new Table("tenant_saml", ImmutableList.Create(
+            var tenantSaml = new Table("tenant_saml", ImmutableList.Create(
                 new Column("tenant_id", "string", false, false, false),
                 new Column("is_enabled", "bool", false, false, false),
                 new Column("identity_provider_metadata", "string", false, false, false),
@@ -282,7 +283,7 @@ namespace DbModelGenerator.Test
                 new Column("default_culture_id", "string", true, false, false)
             ), ImmutableSortedSet.Create("tenant_id"));
 
-            actual.Tables.ShouldDeepEqual(ImmutableList.Create(tenant_saml));
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(tenantSaml));
         }
 
         [Test]
@@ -295,7 +296,7 @@ namespace DbModelGenerator.Test
 
             var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
 
-            var tenant_saml = new Table("tenant_saml", ImmutableList.Create(
+            var tenantSaml = new Table("tenant_saml", ImmutableList.Create(
                 new Column("new_tenant_id", "string", false, false, false),
                 new Column("is_enabled", "bool", false, false, false),
                 new Column("identity_provider_metadata", "string", false, false, false),
@@ -303,7 +304,7 @@ namespace DbModelGenerator.Test
                 new Column("default_culture_id", "string", true, false, false)
             ), ImmutableSortedSet.Create("new_tenant_id"));
 
-            actual.Tables.ShouldDeepEqual(ImmutableList.Create(tenant_saml));
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(tenantSaml));
         }
 
         [Test]
@@ -339,6 +340,25 @@ namespace DbModelGenerator.Test
             var table = new Table("user_grid_state", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
                 new Column("filter_expression", "string", true, false, false)
+            ), ImmutableSortedSet.Create("id"));
+
+            actual.Tables.ShouldDeepEqual(ImmutableList.Create(table));
+        }
+        
+        [Test]
+        public void ShouldGenerateModelFromScripts15()
+        {
+            var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
+            var scriptsPath = Path.Combine(testProjectDirectory, "Scripts15");
+
+            var dbSchemaReader = new DbSchemaReader();
+
+            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+
+            var table = new Table("date_time_only", ImmutableList.Create(
+                new Column("id", "int", false, false, true),
+                new Column("date", "DateOnly", true, false, false),
+                new Column("time", "TimeOnly", true, false, false)
             ), ImmutableSortedSet.Create("id"));
 
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(table));

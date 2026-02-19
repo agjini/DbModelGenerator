@@ -12,6 +12,7 @@ CREATE TABLE user_profile
     groupId     TEXT         NOT NULL,
     latitude    DECIMAL(10, 5),
     created_by  TEXT         NOT NULL,
+    created_day DATE         NOT NULL,
     PRIMARY KEY (id)
 );
 

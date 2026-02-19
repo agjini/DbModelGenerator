@@ -11,8 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="DbModelGenerator" Version="0.4.5"/>
-        <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0"/>
+        <PackageReference Include="DbModelGenerator" Version="0.4.7" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
     </ItemGroup>
 
     <Target Name="Generate Db Model" BeforeTargets="BeforeBuild">

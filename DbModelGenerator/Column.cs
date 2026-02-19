@@ -50,7 +50,9 @@ namespace DbModelGenerator
                     return "Guid";
 
                 case "date":
+                    return "DateOnly";
                 case "time":
+                    return "TimeOnly";
                 case "timestamp":
                 case "datetime":
                     return "DateTime";
