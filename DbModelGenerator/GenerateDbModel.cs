@@ -1,45 +1,73 @@
-using System;
-using System.IO;
-using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
+using System.Collections.Immutable;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 
-namespace DbModelGenerator
+namespace DbModelGenerator;
+
+// Ajouter logs
+// var diagnostic = Diagnostic.Create(
+//     new DiagnosticDescriptor(
+//         "SG001",
+//         "Invalid usage",
+//         "Class {0} must have a parameterless constructor",
+//         "SourceGenerator",
+//         DiagnosticSeverity.Error,
+//         isEnabledByDefault: true),
+//     classDecl.GetLocation(),
+//     classSymbol.Name);
+// 
+// context.ReportDiagnostic(diagnostic);
+
+// AJOUTER CELA AU PROJET POUR LES FICHIERS À INCLURE (EN PLUS D'EMBEDDED)
+// <ItemGroup>
+//     <AdditionalFiles Include="*.sql" />
+// </ItemGroup>
+
+[Generator]
+public class GenerateDbModel : IIncrementalGenerator
 {
-    public sealed class GenerateDbModel : Task
+    public void Initialize(IncrementalGeneratorInitializationContext initializationContext)
     {
-        public string EntityInterface { get; set; }
+        var parameters = initializationContext.AnalyzerConfigOptionsProvider
+            .Select(Parameters.LoadParameters);
 
-        public string PrimaryKeyAttribute { get; set; }
-
-        public string AutoIncrementAttribute { get; set; }
-
-        public string Suffix { get; set; }
-
-        public string ScriptsDir { get; set; }
-
-        public string Ignore { get; set; }
-
-        [Output] public ITaskItem[] GeneratedFiles { get; private set; }
-
-        public override bool Execute()
-        {
-            var projectPath = Path.GetDirectoryName(BuildEngine3.ProjectFileOfTaskNode);
-            if (projectPath == null)
+        var contents = initializationContext.AdditionalTextsProvider.Combine(parameters)
+            .Where(providers =>
             {
-                throw new ArgumentException("ProjectPath is not defined");
-            }
+                var (file, projectParameters) = providers;
+                return IsSqlFile(file, projectParameters.ScriptsPath);
+            })
+            .Select((providers, cancellationToken) => new InputSqlFile(
+                $"{providers.Left.Path.Replace($"{providers.Right.ScriptsPath}/", "")}",
+                providers.Left.GetText(cancellationToken)!.ToString()))
+            .Collect();
 
-            var scriptsDirectory = ScriptsDir ?? "Scripts";
+        initializationContext.RegisterSourceOutput(parameters.Combine(contents),
+            (sourceProductionContext, providers) =>
+            {
+                var (projectParameters, fileList) = providers;
 
-            var scriptsPath = Path.Combine(projectPath, scriptsDirectory);
+                var generatedOutput = fileList.GroupBy(f => f.Path.Split('/').First())
+                    .Select(kvp => DbSchemaReader.Read(kvp.Key, kvp))
+                    .Select(s =>
+                        TemplateGenerator.Generate(IgnoreTables(s, projectParameters.Ignore), projectParameters));
 
-            var parameters = new Parameters(EntityInterface, PrimaryKeyAttribute, AutoIncrementAttribute, Suffix,
-                Ignore ?? "", projectPath, scriptsPath);
-            Log.LogMessage("GeneraDbModel parameters:\n", parameters);
+                foreach (var folderContent in generatedOutput)
+                {
+                    foreach (var (fileName, content) in folderContent.Select(f => (f.Key, f.Value)))
+                    {
+                        sourceProductionContext.AddSource(fileName, content);
+                    }
+                }
+            });
+    }
 
-            GeneratedFiles = DbModelGenerator.Generate(parameters, Log);
+    private static bool IsSqlFile(AdditionalText file, string scriptsPath) => file.Path.EndsWith(".sql")
+                                                                              && file.Path.Contains(scriptsPath);
 
-            return true;
-        }
+    private static Schema IgnoreTables(Schema schema, string ignore)
+    {
+        var toIgnore = ignore.Split(',').Select(i => i.Trim().ToUpper()).ToImmutableHashSet();
+        return new Schema(schema.ScriptDirectory, schema.Tables.Where(t => !toIgnore.Contains(t.Name.ToUpper())));
     }
 }

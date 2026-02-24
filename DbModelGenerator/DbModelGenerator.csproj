@@ -13,28 +13,37 @@
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <PackageProjectUrl>https://github.com/agjini/DbModelGenerator</PackageProjectUrl>
         <RootNamespace>DbModelGenerator</RootNamespace>
+        <LangVersion>14</LangVersion>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsRoslynComponent>true</IsRoslynComponent>
     </PropertyGroup>
-
-    <ItemDefinitionGroup>
-        <PackageReference>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <ProjectReference>
-            <PrivateAssets>all</PrivateAssets>
-        </ProjectReference>
-    </ItemDefinitionGroup>
 
     <ItemGroup>
         <!-- pack the props files -->
-        <Content Include="build\*" PackagePath="build\" />
-        <Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\" />
+        <Content Include="build\*" PackagePath="build\"/>
+        <Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.3.3" />
-        <PackageReference Include="Sprache" Version="2.3.1" />
-        <PackageReference Include="System.Collections.Immutable" Version="10.0.3" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.3.3"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
+        <PackageReference Include="Sprache" Version="2.3.1" GeneratePathProperty="true" PrivateAssets="all"/>
+        <PackageReference Include="System.Collections.Immutable" Version="10.0.3"/>
     </ItemGroup>
+
+    <PropertyGroup>
+        <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
+    </PropertyGroup>
+
+    <Target Name="GetDependencyTargetPaths">
+        <ItemGroup>
+            <TargetPathWithTargetPlatformMoniker Include="$(PKGSprache)\lib\netstandard2.0\Sprache.dll" IncludeRuntimeDependency="false"/>
+        </ItemGroup>
+    </Target>
 
     <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
         <!--

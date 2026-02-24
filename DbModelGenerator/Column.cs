@@ -95,7 +95,7 @@ namespace DbModelGenerator
 
         public bool RequiresSystemUsing()
         {
-            return Type.Equals("Guid") || Type.Equals("DateTime");
+            return Type.Equals("Guid") || Type.Equals("DateTime") || Type.Equals("TimeOnly") || Type.Equals("DateOnly");
         }
 
         public override string ToString()

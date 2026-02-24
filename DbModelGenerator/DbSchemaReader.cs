@@ -1,36 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using DbModelGenerator.Parser.Ast;
 using DbModelGenerator.Parser.Ast.Alter;
 using DbModelGenerator.Parser.Ast.Constraint;
 using DbModelGenerator.Parser.Ast.Create;
-using Microsoft.Build.Utilities;
 using Sprache;
 
 namespace DbModelGenerator
 {
     public sealed class DbSchemaReader
     {
-        public Schema Read(string scriptDirectory, TaskLoggingHelper log)
+        public static Schema Read(string scriptDirectory, IEnumerable<InputSqlFile> allSqlFilesContent)
         {
-            var scriptNamespace = Path.GetFileName(scriptDirectory);
-
-            if (scriptNamespace == null)
-            {
-                throw new ArgumentException($"Project script namespace not found for '{scriptDirectory}' !");
-            }
-
             var tables =
                 new SortedDictionary<string, ColumnsCollection>(StringComparer.InvariantCultureIgnoreCase);
-
-            foreach (var file in Directory.GetFiles(scriptDirectory).OrderBy(f => f))
+            foreach (var inputSqlFile in allSqlFilesContent.OrderBy(f => f.Path))
             {
-                var content = IgnoreComments(File.ReadAllText(file, Encoding.UTF8));
+                var content = IgnoreComments(inputSqlFile.Content);
 
                 var statements = Parser.Parser.DdlTableStatements.Parse(content);
 

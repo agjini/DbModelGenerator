@@ -1,22 +1,19 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 
 namespace DbModelGenerator
 {
     public sealed class TemplateGenerator
     {
-        public static IEnumerable<ITaskItem> Generate(Schema schema, Parameters parameters, TaskLoggingHelper log)
+        public static ImmutableDictionary<string, string> Generate(Schema schema, Parameters parameters)
         {
             if (!schema.Tables.Any())
             {
-                return Array.Empty<ITaskItem>();
+                return [];
             }
 
             var scriptNamespace = Path.GetFileName(schema.ScriptDirectory);
@@ -27,34 +24,21 @@ namespace DbModelGenerator
             }
 
             var generatedPath = Path.Combine(parameters.ProjectPath, "Generated", "Db", scriptNamespace);
-            try
-            {
-                Directory.Delete(generatedPath, true);
-            }
-            catch (DirectoryNotFoundException)
-            {
-            }
 
-            Directory.CreateDirectory(generatedPath);
-
-            var taskItems = new List<ITaskItem>();
+            var generatedFiles = ImmutableDictionary.CreateBuilder<string, string>();
             foreach (var table in schema.Tables)
             {
                 var className = GetClassName(table, parameters.Suffix);
-
-                var outputFile = Path.Combine(generatedPath, $"{className}.cs");
 
                 var ns = $"{Path.GetFileName(parameters.ProjectPath)}.Generated.Db.{scriptNamespace}";
 
                 var content = GenerateClass(ns, table, parameters.EntityInterface, parameters.PrimaryKeyAttribute,
                     parameters.AutoIncrementAttribute, parameters.Suffix);
-                File.WriteAllText(outputFile, content, Encoding.UTF8);
 
-                taskItems.Add(new TaskItem(outputFile));
-                log.LogMessage(MessageImportance.Normal, $"Table '{table}' -> {outputFile}");
+                generatedFiles.Add($"{Path.Combine(generatedPath, $"{className}.cs")}", content);
             }
 
-            return taskItems;
+            return generatedFiles.ToImmutable();
         }
 
         public static string GenerateClass(string ns, Table table, string entityInterface, string primaryKeyAttribute,
@@ -88,7 +72,7 @@ namespace DbModelGenerator
             if (primaryKeyAttributeClass != null && hasPrimaryKeys)
             {
                 if (!matchingInterfaces.Exists(e => string.Equals($"{e.Namespace}",
-                    primaryKeyAttributeClass.Item1, StringComparison.CurrentCultureIgnoreCase)))
+                        primaryKeyAttributeClass.Item1, StringComparison.CurrentCultureIgnoreCase)))
                 {
                     contentBuilder.Append($"using {primaryKeyAttributeClass.Item1};\n");
                 }
@@ -157,7 +141,7 @@ namespace DbModelGenerator
 
         private static string ToPascalCase(string s)
         {
-            var words = s.Split(new[] {'-', '_'}, StringSplitOptions.RemoveEmptyEntries);
+            var words = s.Split(['-', '_'], StringSplitOptions.RemoveEmptyEntries);
 
             var sb = new StringBuilder(words.Sum(x => x.Length));
             foreach (var word in words)

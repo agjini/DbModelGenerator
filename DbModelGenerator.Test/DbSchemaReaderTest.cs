@@ -2,10 +2,8 @@ using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text;
 using DeepEqual.Syntax;
-using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
-using Moq;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
@@ -14,20 +12,17 @@ namespace DbModelGenerator.Test
     [TestFixture]
     public class DbSchemaReaderTest
     {
-        private static IBuildEngine GetTask()
+        private static ImmutableList<InputSqlFile> GetDirectoryContent(string scriptDirectory)
         {
-            var task = new Mock<IBuildEngine>();
-            task.Setup(engine =>
-                    engine.LogMessageEvent(It.IsAny<BuildMessageEventArgs>()))
-                .Callback((BuildMessageEventArgs e) => { Console.WriteLine("MESSAGE {0}", e.Message); });
+            var scriptNamespace = Path.GetFileName(scriptDirectory);
 
-            task.Setup(engine =>
-                    engine.LogCustomEvent(It.IsAny<CustomBuildEventArgs>()))
-                .Callback((CustomBuildEventArgs e) => { Console.WriteLine("CUSTOM {0}", e.Message); });
-            task.Setup(engine =>
-                    engine.LogErrorEvent(It.IsAny<BuildErrorEventArgs>()))
-                .Callback((BuildErrorEventArgs e) => { Console.WriteLine("ERROR {0}", e.Message); });
-            return task.Object;
+            if (scriptNamespace == null)
+            {
+                throw new ArgumentException($"Project script namespace not found for '{scriptDirectory}' !");
+            }
+
+            return Directory.GetFiles(scriptDirectory).OrderBy(f => f)
+                .Select(file => new InputSqlFile(file, File.ReadAllText(file, Encoding.UTF8))).ToImmutableList();
         }
 
         [Test]
@@ -36,9 +31,7 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts");
 
-            var dbSchemaReader = new DbSchemaReader();
-
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var brandTable = new Table("brand", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
@@ -57,9 +50,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts2");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var brandTable = new Table("brand", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
@@ -84,9 +76,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts3");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var bbbTable = new Table("bbbb", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
@@ -108,9 +99,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts4");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var bbbTable = new Table("bbbb", ImmutableList.Create(
                 new Column("name", "string", false, false, false),
@@ -127,9 +117,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts5");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var userProfile = new Table("user_profile", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
@@ -162,9 +151,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts6");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var tenant = new Table("tenant", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
@@ -184,9 +172,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts7");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             ClassicAssert.AreEqual(8, actual.Tables.Count());
             ClassicAssert.AreEqual(2, actual.Tables.First(t => t.Name == "group_type").Columns.Count);
@@ -205,9 +192,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts8");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var contract = new Table("contract", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
@@ -227,9 +213,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts9");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var contract = new Table("contract", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
@@ -250,9 +235,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts10");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var contract = new Table("contract", ImmutableList.Create(
                 new Column("id", "string", false, false, false)
@@ -271,9 +255,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts11");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var tenantSaml = new Table("tenant_saml", ImmutableList.Create(
                 new Column("tenant_id", "string", false, false, false),
@@ -292,9 +275,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts12");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var tenantSaml = new Table("tenant_saml", ImmutableList.Create(
                 new Column("new_tenant_id", "string", false, false, false),
@@ -313,9 +295,8 @@ namespace DbModelGenerator.Test
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts13");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var table = new Table("user_grid_state", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
@@ -326,16 +307,15 @@ namespace DbModelGenerator.Test
 
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(table));
         }
-        
+
         [Test]
         public void ShouldGenerateModelFromScripts14()
         {
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts14");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var table = new Table("user_grid_state", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
@@ -344,16 +324,15 @@ namespace DbModelGenerator.Test
 
             actual.Tables.ShouldDeepEqual(ImmutableList.Create(table));
         }
-        
+
         [Test]
         public void ShouldGenerateModelFromScripts15()
         {
             var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
             var scriptsPath = Path.Combine(testProjectDirectory, "Scripts15");
 
-            var dbSchemaReader = new DbSchemaReader();
 
-            var actual = dbSchemaReader.Read(scriptsPath, new TaskLoggingHelper(GetTask(), "build"));
+            var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
             var table = new Table("date_time_only", ImmutableList.Create(
                 new Column("id", "int", false, false, true),
