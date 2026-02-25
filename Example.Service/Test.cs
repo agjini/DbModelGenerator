@@ -1,14 +1,13 @@
 using System;
 using Example.Service.Generated.Db.Tenant;
 
-namespace Example.Service
+namespace Example.Service;
+
+public class Test
 {
-    public class Test
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            var userGroupDb = new UserGroupDb("test");
-            Console.WriteLine("Works : {0}", userGroupDb);
-        }
+        var userGroupDb = new UserGroupDb("test");
+        Console.WriteLine("Works : {0}", userGroupDb);
     }
 }

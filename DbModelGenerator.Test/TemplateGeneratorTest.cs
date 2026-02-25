@@ -2,60 +2,60 @@ using System.Collections.Immutable;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
-namespace DbModelGenerator.Test
+namespace DbModelGenerator.Test;
+
+public sealed class TemplateGeneratorTest
 {
-    public sealed class TemplateGeneratorTest
+    [Test]
+    public void GenerateAClassForOneTable()
     {
-        [Test]
-        public void GenerateAClassForOneTable()
-        {
-            var table = new Table("user_profile",
-                new[] { new Column("id", "string", false, false, false) }.ToImmutableList(),
-                ImmutableSortedSet.Create("id"));
+        var table = new Table("user_profile",
+            new[] { new Column("id", "string", false, false, false) }.ToImmutableList(),
+            ImmutableSortedSet.Create("id"));
 
-            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, [], null, null, "db");
+        var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, [], null, null, "db");
 
-            const string expected = @"
+        const string expected = @"
 namespace Project.Generated.Global;
 
 public sealed record UserProfileDb(
     string Id
 );";
-            ClassicAssert.AreEqual(expected, actual);
-        }
+        ClassicAssert.AreEqual(expected, actual);
+    }
 
-        [Test]
-        public void GenerateAClassForOneTableWithUsing()
-        {
-            var table = new Table("user_profile",
-                new[] { new Column("id", "Guid", false, false, false) }.ToImmutableList(),
-                ImmutableSortedSet.Create("id"));
+    [Test]
+    public void GenerateAClassForOneTableWithUsing()
+    {
+        var table = new Table("user_profile",
+            new[] { new Column("id", "Guid", false, false, false) }.ToImmutableList(),
+            ImmutableSortedSet.Create("id"));
 
-            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, [], null, null, "Db");
+        var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, [], null, null, "Db");
 
-            const string expected = @"using System;
+        const string expected = @"using System;
 
 namespace Project.Generated.Global;
 
 public sealed record UserProfileDb(
     Guid Id
 );";
-            ClassicAssert.AreEqual(expected, actual);
-        }
+        ClassicAssert.AreEqual(expected, actual);
+    }
 
 
-        [Test]
-        public void GenerateAClassForOneTableWithUsingAndIdentity()
-        {
-            var table = new Table("user_profile",
-                new[] { new Column("id", "Guid", false, false, false) }.ToImmutableList(),
-                ImmutableSortedSet.Create("id"));
+    [Test]
+    public void GenerateAClassForOneTableWithUsingAndIdentity()
+    {
+        var table = new Table("user_profile",
+            new[] { new Column("id", "Guid", false, false, false) }.ToImmutableList(),
+            ImmutableSortedSet.Create("id"));
 
-            var actual =
-                TemplateGenerator.GenerateClass("Project.Generated.Global", table, ["Odin.Api.IIdentity"], null, null,
-                    "Db");
+        var actual =
+            TemplateGenerator.GenerateClass("Project.Generated.Global", table, ["Odin.Api.IIdentity"], null, null,
+                "Db");
 
-            const string expected = @"using System;
+        const string expected = @"using System;
 using Odin.Api;
 
 namespace Project.Generated.Global;
@@ -63,33 +63,33 @@ namespace Project.Generated.Global;
 public sealed record UserProfileDb(
     Guid Id
 ) : IIdentity<Guid>;";
-            ClassicAssert.AreEqual(expected, actual);
-        }
+        ClassicAssert.AreEqual(expected, actual);
+    }
 
-        [Test]
-        public void GenerateAClassForOneTableWithUsingAndIdentityWithoutId()
-        {
-            var table = new Table("user_profile",
-                new[]
-                {
-                    new Column("role_id", "int", false, true, true),
-                    new Column("group_id", "int", false, false, false)
-                }.ToImmutableList(),
-                ImmutableSortedSet.Create("role_id", "group_id"));
+    [Test]
+    public void GenerateAClassForOneTableWithUsingAndIdentityWithoutId()
+    {
+        var table = new Table("user_profile",
+            new[]
+            {
+                new Column("role_id", "int", false, true, true),
+                new Column("group_id", "int", false, false, false)
+            }.ToImmutableList(),
+            ImmutableSortedSet.Create("role_id", "group_id"));
 
-            var actual =
-                TemplateGenerator.GenerateClass("Project.Generated.Global", table,
-                    [
-                        "Odin.Api.IIdentity",
-                        "Odin.Api.IRoleEntity(role_id)",
-                        "Odin.Api.IGroupEntity(role_id,group_id!)",
-                        "Odin.Api.Entity.IDbEntity(model_id,created_by,creation_date,modified_by,modification_date)"
-                    ],
-                    "Odin.Api.PrimaryKey",
-                    "Odin.Api.Generated",
-                    null);
+        var actual =
+            TemplateGenerator.GenerateClass("Project.Generated.Global", table,
+                [
+                    "Odin.Api.IIdentity",
+                    "Odin.Api.IRoleEntity(role_id)",
+                    "Odin.Api.IGroupEntity(role_id,group_id!)",
+                    "Odin.Api.Entity.IDbEntity(model_id,created_by,creation_date,modified_by,modification_date)"
+                ],
+                "Odin.Api.PrimaryKey",
+                "Odin.Api.Generated",
+                null);
 
-            const string expected = @"using Odin.Api;
+        const string expected = @"using Odin.Api;
 
 namespace Project.Generated.Global;
 
@@ -100,7 +100,6 @@ public sealed record UserProfile(
     [property: PrimaryKey]
     int GroupId
 ) : IRoleEntity, IGroupEntity<int>;";
-            ClassicAssert.AreEqual(expected, actual);
-        }
+        ClassicAssert.AreEqual(expected, actual);
     }
 }

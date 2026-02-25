@@ -1,7 +1,6 @@
-namespace Example.Service
+namespace Example.Service;
+
+public interface IDbEntity
 {
-    public interface IDbEntity
-    {
-        string CreatedBy { get; }
-    }
+    string CreatedBy { get; }
 }
