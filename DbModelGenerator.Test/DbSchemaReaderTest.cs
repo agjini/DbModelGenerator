@@ -12,7 +12,7 @@ namespace DbModelGenerator.Test
     [TestFixture]
     public class DbSchemaReaderTest
     {
-        private static ImmutableList<InputSqlFile> GetDirectoryContent(string scriptDirectory)
+        private static ImmutableList<InputFile> GetDirectoryContent(string scriptDirectory)
         {
             var scriptNamespace = Path.GetFileName(scriptDirectory);
 
@@ -22,7 +22,7 @@ namespace DbModelGenerator.Test
             }
 
             return Directory.GetFiles(scriptDirectory).OrderBy(f => f)
-                .Select(file => new InputSqlFile(file, File.ReadAllText(file, Encoding.UTF8))).ToImmutableList();
+                .Select(file => new InputFile(file, File.ReadAllText(file, Encoding.UTF8))).ToImmutableList();
         }
 
         [Test]

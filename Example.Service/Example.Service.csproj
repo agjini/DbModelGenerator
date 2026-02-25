@@ -4,32 +4,11 @@
         <TargetFramework>net10.0</TargetFramework>
         <LangVersion>14</LangVersion>
         <Nullable>enable</Nullable>
-        <EntityInterface>Example.Service.IEntity,Example.Service.IDbEntity(created_by)</EntityInterface>
-        <PrimaryKeyAttribute>Example.Service.PrimaryKey</PrimaryKeyAttribute>
-        <AutoIncrementAttribute>Example.Service.AutoIncrement</AutoIncrementAttribute>
-        <Suffix>Db</Suffix>
-        <Ignore>role</Ignore>
-        <ScriptsDir>Scripts</ScriptsDir>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-        <!-- EntityInterface (optional) -->
-        <!-- PrimaryKeyAttribute (optional) -->
-        <!-- AutoIncrementAttribute (optional) -->
-        <!-- Suffix (optional) -->
-        <!-- ScriptsDir (optional) : by default SQL scripts will be searched into Scripts project sub-folder -->
-        <!-- Output classes will be generated into Generated project sub-folder -->
     </PropertyGroup>
-
-    <ItemGroup>
-        <CompilerVisibleProperty Include="entityinterface"/>
-        <CompilerVisibleProperty Include="primarykeyattribute"/>
-        <CompilerVisibleProperty Include="autoincrementattribute"/>
-        <CompilerVisibleProperty Include="suffix"/>
-        <CompilerVisibleProperty Include="ignore"/>
-        <CompilerVisibleProperty Include="scriptsdir"/>
-    </ItemGroup>
     
     <ItemGroup>
-        <!--        <PackageReference Include="DbModelGenerator" Version="0.4.7"/>-->
+        <!--        <PackageReference Include="DbModelGenerator" Version="0.5.0"/>-->
     </ItemGroup>
 
     <ItemGroup>
@@ -39,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!-- Files for analyzer -->
-        <AdditionalFiles Include="Scripts\**\*.sql"/>
+        <!-- Include files for analyzer -->
+        <AdditionalFiles Include="Scripts\**\*"/>
     </ItemGroup>
 </Project> 

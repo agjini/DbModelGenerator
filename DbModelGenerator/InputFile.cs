@@ -1,6 +1,6 @@
 namespace DbModelGenerator;
 
-public sealed class InputSqlFile(string path, string content)
+public sealed class InputFile(string path, string content)
 {
     public string Path => path;
 

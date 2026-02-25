@@ -1,73 +1,90 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.CodeAnalysis;
 
 namespace DbModelGenerator;
 
-// Ajouter logs
-// var diagnostic = Diagnostic.Create(
-//     new DiagnosticDescriptor(
-//         "SG001",
-//         "Invalid usage",
-//         "Class {0} must have a parameterless constructor",
-//         "SourceGenerator",
-//         DiagnosticSeverity.Error,
-//         isEnabledByDefault: true),
-//     classDecl.GetLocation(),
-//     classSymbol.Name);
-// 
-// context.ReportDiagnostic(diagnostic);
-
-// AJOUTER CELA AU PROJET POUR LES FICHIERS À INCLURE (EN PLUS D'EMBEDDED)
-// <ItemGroup>
-//     <AdditionalFiles Include="*.sql" />
-// </ItemGroup>
-
 [Generator]
 public class GenerateDbModel : IIncrementalGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext initializationContext)
+    public void Initialize(IncrementalGeneratorInitializationContext initContext)
     {
-        var parameters = initializationContext.AnalyzerConfigOptionsProvider
-            .Select(Parameters.LoadParameters);
+        var project = initContext.AnalyzerConfigOptionsProvider
+            .Select(Parameters.GetProjectInfo);
 
-        var contents = initializationContext.AdditionalTextsProvider.Combine(parameters)
+        var additionalFiles = initContext.AdditionalTextsProvider.Combine(project)
             .Where(providers =>
             {
-                var (file, projectParameters) = providers;
-                return IsSqlFile(file, projectParameters.ScriptsPath);
+                var (file, projectInfo) = providers;
+                return file.Path.StartsWith(projectInfo.ScriptPath);
             })
-            .Select((providers, cancellationToken) => new InputSqlFile(
-                $"{providers.Left.Path.Replace($"{providers.Right.ScriptsPath}/", "")}",
-                providers.Left.GetText(cancellationToken)!.ToString()))
+            .Select((providers, cancellationToken) =>
+            {
+                var (file, projectInfo) = providers;
+                return new InputFile(
+                    $"{file.Path.Replace($"{projectInfo.ScriptPath}/", "")}",
+                    file.GetText(cancellationToken)!.ToString());
+            })
             .Collect();
 
-        initializationContext.RegisterSourceOutput(parameters.Combine(contents),
-            (sourceProductionContext, providers) =>
+        initContext.RegisterSourceOutput(additionalFiles.Combine(project),
+            (context, providers) =>
             {
-                var (projectParameters, fileList) = providers;
+                var (files, projectInfo) = providers;
 
-                var generatedOutput = fileList.GroupBy(f => f.Path.Split('/').First())
-                    .Select(kvp => DbSchemaReader.Read(kvp.Key, kvp))
-                    .Select(s =>
-                        TemplateGenerator.Generate(IgnoreTables(s, projectParameters.Ignore), projectParameters));
-
-                foreach (var folderContent in generatedOutput)
+                try
                 {
-                    foreach (var (fileName, content) in folderContent.Select(f => (f.Key, f.Value)))
-                    {
-                        sourceProductionContext.AddSource(fileName, content);
-                    }
+                    ProcessFiles(projectInfo, context, files);
+                }
+                catch (Exception e)
+                {
+                    var diagnostic = ErrorUtils.MapException(e);
+                    context.ReportDiagnostic(diagnostic);
                 }
             });
     }
 
-    private static bool IsSqlFile(AdditionalText file, string scriptsPath) => file.Path.EndsWith(".sql")
-                                                                              && file.Path.Contains(scriptsPath);
-
-    private static Schema IgnoreTables(Schema schema, string ignore)
+    private static void ProcessFiles(ProjectInfo projectInfo, SourceProductionContext context,
+        ImmutableArray<InputFile> files)
     {
-        var toIgnore = ignore.Split(',').Select(i => i.Trim().ToUpper()).ToImmutableHashSet();
+        var configFile = files
+            .Where(f => f.Path.Equals("db.json", StringComparison.InvariantCultureIgnoreCase))
+            .Select(f =>
+            {
+                try
+                {
+                    return JsonSerializer.Deserialize<Parameters>(f.Content,
+                        new JsonSerializerOptions
+                        {
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                            PropertyNameCaseInsensitive = true
+                        });
+                }
+                catch (Exception e)
+                {
+                    throw new DbModelGeneratorException(Location.Create($"{projectInfo.ScriptPath}/{f.Path}", default, default), e.Message);
+                }
+            })
+            .FirstOrDefault() ?? Parameters.Default();
+
+        var generatedOutput = files
+            .Where(f => f.Path.EndsWith(".sql", StringComparison.InvariantCultureIgnoreCase))
+            .GroupBy(f => f.Path.Split('/').First())
+            .Select(kvp => DbSchemaReader.Read(kvp.Key, kvp))
+            .SelectMany(s => TemplateGenerator.Generate(projectInfo, IgnoreTables(s, configFile.Ignores), configFile))
+            .Select(f => (f.Key, f.Value));
+
+        foreach (var (fileName, content) in generatedOutput)
+        {
+            context.AddSource(fileName, content);
+        }
+    }
+
+    private static Schema IgnoreTables(Schema schema, ImmutableList<string> ignores)
+    {
+        var toIgnore = ignores.Select(i => i.Trim().ToUpper()).ToImmutableHashSet();
         return new Schema(schema.ScriptDirectory, schema.Tables.Where(t => !toIgnore.Contains(t.Name.ToUpper())));
     }
 }

@@ -1,7 +1,6 @@
-namespace DbModelGenerator.Parser.Ast
+namespace DbModelGenerator.Parser.Ast;
+
+public abstract class DdlTableStatement
 {
-    public abstract class DdlTableStatement
-    {
-        public abstract string Table { get; }
-    }
+    public abstract string Table { get; }
 }

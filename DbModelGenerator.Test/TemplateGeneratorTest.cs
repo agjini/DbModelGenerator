@@ -6,30 +6,27 @@ namespace DbModelGenerator.Test
 {
     public sealed class TemplateGeneratorTest
     {
-	    [Test]
+        [Test]
         public void GenerateAClassForOneTable()
         {
             var table = new Table("user_profile",
                 new[] { new Column("id", "string", false, false, false) }.ToImmutableList(),
                 ImmutableSortedSet.Create("id"));
 
-            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "db");
+            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, [], null, null, "db");
 
             const string expected = @"
-namespace Project.Generated.Global
+namespace Project.Generated.Global;
+
+public sealed class UserProfileDb
 {
 
-	public sealed class UserProfileDb
+	public UserProfileDb(string id)
 	{
-
-		public UserProfileDb(string id)
-		{
-			Id = id;
-		}
-
-		public string Id { get; }
-
+		Id = id;
 	}
+
+	public string Id { get; }
 
 }";
             ClassicAssert.AreEqual(expected, actual);
@@ -42,24 +39,21 @@ namespace Project.Generated.Global
                 new[] { new Column("id", "Guid", false, false, false) }.ToImmutableList(),
                 ImmutableSortedSet.Create("id"));
 
-            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, null, null, null, "Db");
+            var actual = TemplateGenerator.GenerateClass("Project.Generated.Global", table, [], null, null, "Db");
 
             const string expected = @"using System;
 
-namespace Project.Generated.Global
+namespace Project.Generated.Global;
+
+public sealed class UserProfileDb
 {
 
-	public sealed class UserProfileDb
+	public UserProfileDb(Guid id)
 	{
-
-		public UserProfileDb(Guid id)
-		{
-			Id = id;
-		}
-
-		public Guid Id { get; }
-
+		Id = id;
 	}
+
+	public Guid Id { get; }
 
 }";
             ClassicAssert.AreEqual(expected, actual);
@@ -74,26 +68,23 @@ namespace Project.Generated.Global
                 ImmutableSortedSet.Create("id"));
 
             var actual =
-                TemplateGenerator.GenerateClass("Project.Generated.Global", table, "Odin.Api.IIdentity", null, null,
+                TemplateGenerator.GenerateClass("Project.Generated.Global", table, ["Odin.Api.IIdentity"], null, null,
                     "Db");
 
             const string expected = @"using System;
 using Odin.Api;
 
-namespace Project.Generated.Global
+namespace Project.Generated.Global;
+
+public sealed class UserProfileDb : IIdentity<Guid>
 {
 
-	public sealed class UserProfileDb : IIdentity<Guid>
+	public UserProfileDb(Guid id)
 	{
-
-		public UserProfileDb(Guid id)
-		{
-			Id = id;
-		}
-
-		public Guid Id { get; }
-
+		Id = id;
 	}
+
+	public Guid Id { get; }
 
 }";
             ClassicAssert.AreEqual(expected, actual);
@@ -112,33 +103,35 @@ namespace Project.Generated.Global
 
             var actual =
                 TemplateGenerator.GenerateClass("Project.Generated.Global", table,
-                    "Odin.Api.IIdentity;Odin.Api.IRoleEntity(role_id);Odin.Api.IGroupEntity(role_id,group_id!);Odin.Api.Entity.IDbEntity(model_id,created_by,creation_date,modified_by,modification_date)",
+                    [
+                        "Odin.Api.IIdentity",
+                        "Odin.Api.IRoleEntity(role_id)",
+                        "Odin.Api.IGroupEntity(role_id,group_id!)",
+                        "Odin.Api.Entity.IDbEntity(model_id,created_by,creation_date,modified_by,modification_date)"
+                    ],
                     "Odin.Api.PrimaryKey",
                     "Odin.Api.Generated",
                     null);
 
             const string expected = @"using Odin.Api;
 
-namespace Project.Generated.Global
+namespace Project.Generated.Global;
+
+public sealed class UserProfile : IRoleEntity, IGroupEntity<int>
 {
 
-	public sealed class UserProfile : IRoleEntity, IGroupEntity<int>
+	public UserProfile(int? role_id, int group_id)
 	{
-
-		public UserProfile(int? role_id, int group_id)
-		{
-			RoleId = role_id;
-			GroupId = group_id;
-		}
-
-		[PrimaryKey]
-		[Generated]
-		public int? RoleId { get; }
-
-		[PrimaryKey]
-		public int GroupId { get; }
-
+		RoleId = role_id;
+		GroupId = group_id;
 	}
+
+	[PrimaryKey]
+	[Generated]
+	public int? RoleId { get; }
+
+	[PrimaryKey]
+	public int GroupId { get; }
 
 }";
             ClassicAssert.AreEqual(expected, actual);

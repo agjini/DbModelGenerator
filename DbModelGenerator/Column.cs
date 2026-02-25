@@ -2,105 +2,104 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace DbModelGenerator
+namespace DbModelGenerator;
+
+public static class ColumnParser
 {
-    public static class ColumnParser
+    public static bool RequiresSystemUsing(IEnumerable<Column> columns)
     {
-        public static bool RequiresSystemUsing(IEnumerable<Column> columns)
-        {
-            return columns.Any(column => column.RequiresSystemUsing());
-        }
-
-        public static string ParseType(string datatype)
-        {
-            var match = Regex.Match(datatype, @"(\w+).*");
-            var value = match.Groups[1].Value;
-
-            switch (value.ToLower())
-            {
-                case "serial":
-                case "int":
-                case "integer":
-                    return "int";
-
-                case "tinyint":
-                    return "byte";
-
-                case "binary":
-                case "varbinary":
-                case "blob":
-                    return "byte[]";
-
-                case "smallint":
-                case "smallserial":
-                    return "short";
-
-                case "bigserial":
-                case "bigint":
-                    return "long";
-
-                case "real":
-                case "numeric":
-                case "decimal":
-                case "double precision":
-                case "money":
-                    return "decimal";
-
-                case "uniqueidentifier":
-                    return "Guid";
-
-                case "date":
-                    return "DateOnly";
-                case "time":
-                    return "TimeOnly";
-                case "timestamp":
-                case "datetime":
-                    return "DateTime";
-
-                case "bit":
-                case "boolean":
-                    return "bool";
-
-                default:
-                    return "string";
-            }
-        }
+        return columns.Any(column => column.RequiresSystemUsing());
     }
 
-    public sealed class Column
+    public static string ParseType(string datatype)
     {
-        public Column(string name, string type, bool isNullable, bool isAutoIncrementByDefinition,
-            bool isAutoIncrementByType)
+        var match = Regex.Match(datatype, @"(\w+).*");
+        var value = match.Groups[1].Value;
+
+        switch (value.ToLower())
         {
-            Name = name;
-            Type = type;
-            IsNullable = isNullable;
-            IsAutoIncrementByDefinition = isAutoIncrementByDefinition;
-            IsAutoIncrementByType = isAutoIncrementByType;
+            case "serial":
+            case "int":
+            case "integer":
+                return "int";
+
+            case "tinyint":
+                return "byte";
+
+            case "binary":
+            case "varbinary":
+            case "blob":
+                return "byte[]";
+
+            case "smallint":
+            case "smallserial":
+                return "short";
+
+            case "bigserial":
+            case "bigint":
+                return "long";
+
+            case "real":
+            case "numeric":
+            case "decimal":
+            case "double precision":
+            case "money":
+                return "decimal";
+
+            case "uniqueidentifier":
+                return "Guid";
+
+            case "date":
+                return "DateOnly";
+            case "time":
+                return "TimeOnly";
+            case "timestamp":
+            case "datetime":
+                return "DateTime";
+
+            case "bit":
+            case "boolean":
+                return "bool";
+
+            default:
+                return "string";
         }
+    }
+}
 
-        public string Name { get; }
-        public string Type { get; }
-        public bool IsNullable { get; }
-        public bool IsAutoIncrementByDefinition { get; }
-        public bool IsAutoIncrementByType { get; }
+public sealed class Column
+{
+    public Column(string name, string type, bool isNullable, bool isAutoIncrementByDefinition,
+        bool isAutoIncrementByType)
+    {
+        Name = name;
+        Type = type;
+        IsNullable = isNullable;
+        IsAutoIncrementByDefinition = isAutoIncrementByDefinition;
+        IsAutoIncrementByType = isAutoIncrementByType;
+    }
 
-        public bool IsAutoIncrement => IsAutoIncrementByDefinition || IsAutoIncrementByType;
+    public string Name { get; }
+    public string Type { get; }
+    public bool IsNullable { get; }
+    public bool IsAutoIncrementByDefinition { get; }
+    public bool IsAutoIncrementByType { get; }
 
-        public string TypeAsString()
-        {
-            var n = IsNullable || IsAutoIncrement ? "?" : "";
-            return $"{Type}{n}";
-        }
+    public bool IsAutoIncrement => IsAutoIncrementByDefinition || IsAutoIncrementByType;
 
-        public bool RequiresSystemUsing()
-        {
-            return Type.Equals("Guid") || Type.Equals("DateTime") || Type.Equals("TimeOnly") || Type.Equals("DateOnly");
-        }
+    public string TypeAsString()
+    {
+        var n = IsNullable || IsAutoIncrement ? "?" : "";
+        return $"{Type}{n}";
+    }
 
-        public override string ToString()
-        {
-            return Name;
-        }
+    public bool RequiresSystemUsing()
+    {
+        return Type.Equals("Guid") || Type.Equals("DateTime") || Type.Equals("TimeOnly") || Type.Equals("DateOnly");
+    }
+
+    public override string ToString()
+    {
+        return Name;
     }
 }

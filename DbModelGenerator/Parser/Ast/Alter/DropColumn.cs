@@ -1,12 +1,11 @@
-namespace DbModelGenerator.Parser.Ast.Alter
-{
-    public sealed class DropColumn : DdlAlterTableStatement
-    {
-        public DropColumn(string column)
-        {
-            Column = column;
-        }
+namespace DbModelGenerator.Parser.Ast.Alter;
 
-        public string Column { get; }
+public sealed class DropColumn : DdlAlterTableStatement
+{
+    public DropColumn(string column)
+    {
+        Column = column;
     }
+
+    public string Column { get; }
 }
