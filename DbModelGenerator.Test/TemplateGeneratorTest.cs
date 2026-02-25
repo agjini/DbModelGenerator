@@ -6,12 +6,7 @@ namespace DbModelGenerator.Test
 {
     public sealed class TemplateGeneratorTest
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
-        [Test]
+	    [Test]
         public void GenerateAClassForOneTable()
         {
             var table = new Table("user_profile",
