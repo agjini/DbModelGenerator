@@ -2,28 +2,26 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>14</LangVersion>
+        <Nullable>enable</Nullable>
+        
         <PackageId>DbModelGenerator</PackageId>
-        <Version>0.5.0</Version>
+        <Version>0.5.1</Version>
         <Authors>Augustin Gjini</Authors>
         <Company>Synergee</Company>
-        <IsPackable>true</IsPackable>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild> <!-- Generates a package at build -->
-        <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
-        <NoPackageAnalysis>true</NoPackageAnalysis>
-        <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
-        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <PackageProjectUrl>https://github.com/agjini/DbModelGenerator</PackageProjectUrl>
         <RootNamespace>DbModelGenerator</RootNamespace>
-        <LangVersion>14</LangVersion>
+        <IsPackable>true</IsPackable>
+
+        <NoPackageAnalysis>true</NoPackageAnalysis>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
     </PropertyGroup>
 
-    <ItemGroup>
-        <!-- pack the props files -->
-        <Content Include="build\*" PackagePath="build\"/>
-        <Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\"/>
-    </ItemGroup>
+    <PropertyGroup>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild> <!-- Generates a package at build -->
+        <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
+    </PropertyGroup>
 
     <ItemGroup>
         <!-- Package the generator in the analyzer directory of the nuget package -->
@@ -37,33 +35,9 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
-        <PackageReference Include="Sprache" Version="2.3.1" GeneratePathProperty="true" PrivateAssets="all"/>
+        <PackageReference Include="Sprache" Version="2.3.1" />
         <PackageReference Include="System.Collections.Immutable" Version="10.0.3"/>
         <PackageReference Include="System.Text.Json" Version="10.0.3" />
     </ItemGroup>
-
-    <PropertyGroup>
-        <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
-    </PropertyGroup>
-
-    <Target Name="GetDependencyTargetPaths">
-        <ItemGroup>
-            <TargetPathWithTargetPlatformMoniker Include="$(PKGSprache)\lib\netstandard2.0\Sprache.dll" IncludeRuntimeDependency="false"/>
-        </ItemGroup>
-    </Target>
-
-    <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
-        <!--
-        The include needs to happen after output has been copied to build output folder
-        but before NuGet generates a nuspec.
-        -->
-        <ItemGroup>
-            <_PackageFiles Include="bin\$(Configuration)\*\Sprache.dll">
-                <PackagePath>tasks%(RecursiveDir)</PackagePath>
-                <Visible>false</Visible>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-        </ItemGroup>
-    </Target>
 
 </Project>
