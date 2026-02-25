@@ -18,17 +18,9 @@ namespace DbModelGenerator.Test
             const string expected = @"
 namespace Project.Generated.Global;
 
-public sealed class UserProfileDb
-{
-
-	public UserProfileDb(string id)
-	{
-		Id = id;
-	}
-
-	public string Id { get; }
-
-}";
+public sealed record UserProfileDb(
+    string Id
+);";
             ClassicAssert.AreEqual(expected, actual);
         }
 
@@ -45,17 +37,9 @@ public sealed class UserProfileDb
 
 namespace Project.Generated.Global;
 
-public sealed class UserProfileDb
-{
-
-	public UserProfileDb(Guid id)
-	{
-		Id = id;
-	}
-
-	public Guid Id { get; }
-
-}";
+public sealed record UserProfileDb(
+    Guid Id
+);";
             ClassicAssert.AreEqual(expected, actual);
         }
 
@@ -76,17 +60,9 @@ using Odin.Api;
 
 namespace Project.Generated.Global;
 
-public sealed class UserProfileDb : IIdentity<Guid>
-{
-
-	public UserProfileDb(Guid id)
-	{
-		Id = id;
-	}
-
-	public Guid Id { get; }
-
-}";
+public sealed record UserProfileDb(
+    Guid Id
+) : IIdentity<Guid>;";
             ClassicAssert.AreEqual(expected, actual);
         }
 
@@ -117,23 +93,13 @@ public sealed class UserProfileDb : IIdentity<Guid>
 
 namespace Project.Generated.Global;
 
-public sealed class UserProfile : IRoleEntity, IGroupEntity<int>
-{
-
-	public UserProfile(int? role_id, int group_id)
-	{
-		RoleId = role_id;
-		GroupId = group_id;
-	}
-
-	[PrimaryKey]
-	[Generated]
-	public int? RoleId { get; }
-
-	[PrimaryKey]
-	public int GroupId { get; }
-
-}";
+public sealed record UserProfile(
+    [property: PrimaryKey]
+    [property: Generated]
+    int? RoleId,
+    [property: PrimaryKey]
+    int GroupId
+) : IRoleEntity, IGroupEntity<int>;";
             ClassicAssert.AreEqual(expected, actual);
         }
     }

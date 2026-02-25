@@ -9,7 +9,8 @@ namespace DbModelGenerator;
 
 public sealed class TemplateGenerator
 {
-    public static ImmutableDictionary<string, string> Generate(ProjectInfo projectInfo, Schema schema, Parameters parameters)
+    public static ImmutableDictionary<string, string> Generate(ProjectInfo projectInfo, Schema schema,
+        Parameters parameters)
     {
         if (!schema.Tables.Any())
         {
@@ -40,6 +41,8 @@ public sealed class TemplateGenerator
 
         return generatedFiles.ToImmutable();
     }
+
+    private const string Indent = "    ";
 
     public static string GenerateClass(string ns, Table table, ImmutableList<string> entityInterface,
         string primaryKeyAttribute,
@@ -93,44 +96,42 @@ public sealed class TemplateGenerator
 
         contentBuilder.Append($"\nnamespace {ns};\n\n");
 
-        contentBuilder.Append($"public sealed class {className}");
+        contentBuilder.Append($"public sealed record {className}(\n");
+
+        contentBuilder.Append(string.Join(",\n",
+            table.Columns.Select(c => WriteProperty(table, primaryKeyAttributeClass, autoIncrementAttributeClass, c))));
+
+        contentBuilder.Append("\n)");
         if (matchingInterfaces.Count > 0)
         {
-            contentBuilder.Append(
-                $" : {string.Join(", ", matchingInterfaces.Select(e => e.GetDeclaration(table.Columns)))}");
+            contentBuilder.Append($" : {string.Join(", ", matchingInterfaces.Select(e => e.GetDeclaration(table.Columns)))}");
         }
 
-        contentBuilder.Append("\n{\n\n");
-
-        var args = string.Join(", ", table.Columns.Select(c => $"{c.TypeAsString()} {c.Name}"));
-
-        contentBuilder.Append($"\tpublic {className}({args})\n\t{{\n");
-
-        contentBuilder.Append(string.Join("\n",
-            table.Columns.Select(c => $"\t\t{ToPascalCase(c.Name)} = {c.Name};")));
-        contentBuilder.Append("\n\t}\n\n");
-
-        foreach (var column in table.Columns)
-        {
-            if (primaryKeyAttributeClass != null && table.IsPrimaryKey(column.Name))
-            {
-                contentBuilder.Append(
-                    $"\t[{primaryKeyAttributeClass.Item2}]\n");
-            }
-
-            if (autoIncrementAttributeClass != null && column.IsAutoIncrement)
-            {
-                contentBuilder.Append(
-                    $"\t[{autoIncrementAttributeClass.Item2}]\n");
-            }
-
-            contentBuilder.Append(
-                $"\tpublic {column.TypeAsString()} {ToPascalCase(column.Name)} {{ get; }}\n\n");
-        }
-
-        contentBuilder.Append("}");
+        contentBuilder.Append(";");
         var content = contentBuilder.ToString();
         return content;
+    }
+
+    private static string WriteProperty(
+        Table table,
+        Tuple<string, string> primaryKeyAttributeClass,
+        Tuple<string, string> autoIncrementAttributeClass,
+        Column c
+    )
+    {
+        var builder = new StringBuilder();
+        if (primaryKeyAttributeClass != null && table.IsPrimaryKey(c.Name))
+        {
+            builder.Append($"{Indent}[property: {primaryKeyAttributeClass.Item2}]\n");
+        }
+
+        if (autoIncrementAttributeClass != null && c.IsAutoIncrement)
+        {
+            builder.Append($"{Indent}[property: {autoIncrementAttributeClass.Item2}]\n");
+        }
+
+        builder.Append($"{Indent}{c.TypeAsString()} {ToPascalCase(c.Name)}");
+        return builder.ToString();
     }
 
     private static string GetClassName(Table table, string suffix)
