@@ -4,19 +4,12 @@
         <TargetFramework>net10.0</TargetFramework>
         <LangVersion>14</LangVersion>
         <Nullable>enable</Nullable>
-        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DbModelGenerator" Version="0.5.2"/>
+    </ItemGroup>
     
-    <ItemGroup>
-        <!--        <PackageReference Include="DbModelGenerator" Version="0.5.1"/>-->
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\DbModelGenerator\DbModelGenerator.csproj"
-                          OutputItemType="Analyzer"
-                          ReferenceOutputAssembly="false"/>
-    </ItemGroup>
-
     <ItemGroup>
         <!-- Include files for analyzer -->
         <AdditionalFiles Include="Scripts\**\*"/>

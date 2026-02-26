@@ -9,11 +9,11 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace DbModelGenerator;
 
 public sealed class Parameters(
-    ImmutableList<string> interfaces,
-    string primaryKeyAttribute,
-    string autoIncrementAttribute,
-    string suffix,
-    ImmutableList<string> ignores
+    ImmutableList<string>? interfaces,
+    string? primaryKeyAttribute,
+    string? autoIncrementAttribute,
+    string? suffix,
+    ImmutableList<string>? ignores
 )
 {
     public static Parameters Default()
@@ -44,7 +44,7 @@ public sealed class Parameters(
         return new ProjectInfo(Path.Combine(projectDir, scriptsDirectory), new DirectoryInfo(projectDir).Name);
     }
 
-    private static (string Name, string Value) GetParameter(AnalyzerConfigOptions options, string parameterName)
+    private static (string Name, string? Value) GetParameter(AnalyzerConfigOptions options, string parameterName)
     {
         return (Name: parameterName,
             Value: !options.TryGetValue($"build_property.{parameterName.ToLower()}", out var value)
@@ -54,9 +54,9 @@ public sealed class Parameters(
 
     public ImmutableList<string> Interfaces { get; } = interfaces ?? [];
 
-    public string PrimaryKeyAttribute { get; } = primaryKeyAttribute;
+    public string? PrimaryKeyAttribute { get; } = primaryKeyAttribute;
 
-    public string AutoIncrementAttribute { get; } = autoIncrementAttribute;
+    public string? AutoIncrementAttribute { get; } = autoIncrementAttribute;
 
     public string Suffix { get; } = suffix ?? "";
 

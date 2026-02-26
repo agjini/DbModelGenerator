@@ -44,13 +44,16 @@ public sealed class TemplateGenerator
 
     private const string Indent = "    ";
 
-    public static string GenerateClass(string ns, Table table, ImmutableList<string> entityInterface,
-        string primaryKeyAttribute,
-        string autoIncrementAttribute, string suffix)
+    public static string GenerateClass(string ns, Table table,
+        ImmutableList<string> entityInterface,
+        string? primaryKeyAttribute,
+        string? autoIncrementAttribute,
+        string suffix)
     {
         var className = GetClassName(table, suffix);
 
-        var entityInterfaces = entityInterface.Select(e => ParseEntityInterface(e.Trim()));
+        var entityInterfaces = entityInterface.Where(e => e != null)
+            .Select(e => ParseEntityInterface(e.Trim()));
         var primaryKeyAttributeClass = ParseClassName(primaryKeyAttribute);
         var autoIncrementAttributeClass = ParseClassName(autoIncrementAttribute);
         var contentBuilder = new StringBuilder();
@@ -63,12 +66,15 @@ public sealed class TemplateGenerator
         var hasPrimaryKeys = table.Columns
             .Any(c => table.IsPrimaryKey(c.Name));
 
-        var matchingInterfaces = entityInterfaces.Where(e => e.Properties.All(p =>
+        var matchingInterfaces = entityInterfaces
+            .Where(e => e != null)
+            .Where(e => e!.Properties.All(p =>
                 table.Columns.Exists(c =>
                     string.Equals(p.Item1, c.Name, StringComparison.CurrentCultureIgnoreCase))))
             .ToImmutableList();
 
-        foreach (var matchingInterfaceNamespace in matchingInterfaces.Select(m => m.Namespace).Distinct())
+        foreach (var matchingInterfaceNamespace in matchingInterfaces
+                     .Select(m => m.Namespace).Distinct())
         {
             contentBuilder.Append($"using {matchingInterfaceNamespace};\n");
         }
@@ -104,7 +110,8 @@ public sealed class TemplateGenerator
         contentBuilder.Append("\n)");
         if (matchingInterfaces.Count > 0)
         {
-            contentBuilder.Append($" : {string.Join(", ", matchingInterfaces.Select(e => e.GetDeclaration(table.Columns)))}");
+            contentBuilder.Append(
+                $" : {string.Join(", ", matchingInterfaces.Select(e => e.GetDeclaration(table.Columns)))}");
         }
 
         contentBuilder.Append(";");
@@ -114,20 +121,20 @@ public sealed class TemplateGenerator
 
     private static string WriteProperty(
         Table table,
-        Tuple<string, string> primaryKeyAttributeClass,
-        Tuple<string, string> autoIncrementAttributeClass,
+        Tuple<string, string>? primaryKeyAttributeClass,
+        Tuple<string, string>? autoIncrementAttributeClass,
         Column c
     )
     {
         var builder = new StringBuilder();
         if (primaryKeyAttributeClass != null && table.IsPrimaryKey(c.Name))
         {
-            builder.Append($"{Indent}[property: {primaryKeyAttributeClass.Item2}]\n");
+            builder.Append($"{Indent}[{primaryKeyAttributeClass.Item2}]\n");
         }
 
         if (autoIncrementAttributeClass != null && c.IsAutoIncrement)
         {
-            builder.Append($"{Indent}[property: {autoIncrementAttributeClass.Item2}]\n");
+            builder.Append($"{Indent}[{autoIncrementAttributeClass.Item2}]\n");
         }
 
         builder.Append($"{Indent}{c.TypeAsString()} {ToPascalCase(c.Name)}");
@@ -136,7 +143,7 @@ public sealed class TemplateGenerator
 
     private static string GetClassName(Table table, string suffix)
     {
-        var s = suffix != null ? $"_{suffix}" : "";
+        var s = suffix is { Length: > 0 } ? $"_{suffix}" : "";
         var className = ToPascalCase(table.Name + s);
         return className;
     }
@@ -156,47 +163,40 @@ public sealed class TemplateGenerator
 
     private static EntityInterface ParseEntityInterface(string identityInterface)
     {
-        if (identityInterface == null)
-        {
-            return null;
-        }
-
         const string pattern = @"(?<ns>.*)\.(?<classname>\w+)\s*(\((?<properties>[\w!,]*)\))?";
 
         var match = Regex.Match(identityInterface, pattern);
-        if (match.Success)
+        if (!match.Success)
         {
-            var ns = match.Groups["ns"].Value;
-            var className = match.Groups["classname"].Value;
-            var matchGroup = match.Groups["properties"].Value;
-            ImmutableList<(string, bool)> properties;
-            if (matchGroup == "")
-            {
-                properties = ImmutableList.Create(("id", true));
-            }
-            else
-            {
-                properties = matchGroup
-                    .Split(',')
-                    .Select(s =>
-                    {
-                        var property = s.Trim();
-                        return property.EndsWith("!")
-                            ? (property.Substring(0, property.Length - 1), true)
-                            : (property, false);
-                    })
-                    .ToImmutableList();
-            }
-
-            return new EntityInterface(ns, className, properties);
+            throw new ArgumentException($"Parameter IdentityInterface has wrong format : {identityInterface} must be of the form 'Namespace.ClassName'");
         }
 
-        throw new ArgumentException(
-                $"Parameter IdentityInterface has wrong format : {identityInterface} must be of the form 'Namespace.ClassName'")
-            ;
+        var ns = match.Groups["ns"].Value;
+        var className = match.Groups["classname"].Value;
+        var matchGroup = match.Groups["properties"].Value;
+        ImmutableList<(string, bool)> properties;
+        if (matchGroup == "")
+        {
+            properties = ImmutableList.Create(("id", true));
+        }
+        else
+        {
+            properties = matchGroup
+                .Split(',')
+                .Select(s =>
+                {
+                    var property = s.Trim();
+                    return property.EndsWith("!")
+                        ? (property.Substring(0, property.Length - 1), true)
+                        : (property, false);
+                })
+                .ToImmutableList();
+        }
+
+        return new EntityInterface(ns, className, properties);
     }
 
-    private static Tuple<string, string> ParseClassName(string identityInterface)
+    private static Tuple<string, string>? ParseClassName(string? identityInterface)
     {
         if (identityInterface == null)
         {

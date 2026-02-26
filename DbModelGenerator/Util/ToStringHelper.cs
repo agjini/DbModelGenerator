@@ -7,6 +7,7 @@ namespace DbModelGenerator.Util;
 public static class ToStringHelper
 {
     public static string ToString<T>(T t)
+        where T : notnull
     {
         var builder = new ToStringBuilder<T>(t);
         foreach (var property in typeof(T).GetProperties())
@@ -18,18 +19,11 @@ public static class ToStringHelper
     }
 }
 
-public sealed class ToStringBuilder<T>
+public sealed class ToStringBuilder<T>(T obj)
+    where T : notnull
 {
-    private readonly T obj;
-    private readonly Type objType;
-    private readonly List<string> properties;
-
-    public ToStringBuilder(T obj)
-    {
-        this.obj = obj;
-        objType = obj.GetType();
-        properties = new List<string>();
-    }
+    private readonly Type objType = obj.GetType();
+    private readonly List<string> properties = new();
 
     public void Append(PropertyInfo propertyInfo)
     {

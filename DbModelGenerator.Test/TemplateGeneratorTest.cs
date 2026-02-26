@@ -94,10 +94,10 @@ public sealed record UserProfileDb(
 namespace Project.Generated.Global;
 
 public sealed record UserProfile(
-    [property: PrimaryKey]
-    [property: Generated]
+    [PrimaryKey]
+    [Generated]
     int? RoleId,
-    [property: PrimaryKey]
+    [PrimaryKey]
     int GroupId
 ) : IRoleEntity, IGroupEntity<int>;";
         ClassicAssert.AreEqual(expected, actual);

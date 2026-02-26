@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         
         <PackageId>DbModelGenerator</PackageId>
-        <Version>0.5.1</Version>
+        <Version>0.5.2</Version>
         <Authors>Augustin Gjini</Authors>
         <Company>Synergee</Company>
         <PackageProjectUrl>https://github.com/agjini/DbModelGenerator</PackageProjectUrl>
@@ -21,11 +21,23 @@
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild> <!-- Generates a package at build -->
         <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- Package the generator in the analyzer directory of the nuget package -->
         <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Take a private dependency on Sprache (PrivateAssets=all) Consumers of this generator will not reference it.
+             Set GeneratePathProperty=true so we can reference the binaries via the PKGSprache property -->
+        <PackageReference Include="Sprache" Version="2.3.1" PrivateAssets="all" GeneratePathProperty="true"  />
+        <!-- Package the generator in the analyzer directory of the nuget package -->
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+
+        <!-- Package the Sprache dependency alongside the generator assembly -->
+        <None Include="$(PkgSprache)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     </ItemGroup>
     
     <ItemGroup>
@@ -35,9 +47,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
-        <PackageReference Include="Sprache" Version="2.3.1" />
-        <PackageReference Include="System.Collections.Immutable" Version="10.0.3"/>
         <PackageReference Include="System.Text.Json" Version="10.0.3" />
+        <PackageReference Include="System.Collections.Immutable" Version="10.0.3" />
     </ItemGroup>
 
 </Project>
