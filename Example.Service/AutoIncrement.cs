@@ -1,8 +1,7 @@
 using System;
 
-namespace Example.Service
+namespace Example.Service;
+
+public sealed class AutoIncrement : Attribute
 {
-    public sealed class AutoIncrement : Attribute
-    {
-    }
 }

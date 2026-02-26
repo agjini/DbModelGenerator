@@ -1,32 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <LangVersion>8</LangVersion>
+        <TargetFramework>net10.0</TargetFramework>
+        <LangVersion>14</LangVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Generated\**\*"/>
+        <PackageReference Include="DbModelGenerator" Version="0.5.2"/>
     </ItemGroup>
-
+    
     <ItemGroup>
-        <PackageReference Include="DbModelGenerator" Version="0.4.7" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
+        <!-- Include files for analyzer -->
+        <AdditionalFiles Include="Scripts\**\*"/>
     </ItemGroup>
-
-    <Target Name="Generate Db Model" BeforeTargets="BeforeBuild">
-        <!-- EntityInterface (optional) -->
-        <!-- PrimaryKeyAttribute (optional) -->
-        <!-- AutoIncrementAttribute (optional) -->
-        <!-- Suffix (optional) -->
-        <!-- ScriptsDir (optional) : b default SQL scripts will be searched into Scripts project sub-folder -->
-        <!-- Output classes will be generated into Generated project sub-folder -->
-        <GenerateDbModel EntityInterface="Example.Service.IEntity;Example.Service.IDbEntity(created_by)" 
-                         PrimaryKeyAttribute="Example.Service.PrimaryKey" 
-                         AutoIncrementAttribute="Example.Service.AutoIncrement" 
-                         Suffix="Db"
-                         Ignore="role"/>
-    </Target>
-
 </Project> 

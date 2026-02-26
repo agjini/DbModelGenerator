@@ -1,18 +1,10 @@
 using System.Collections.Generic;
 
-namespace DbModelGenerator
+namespace DbModelGenerator;
+
+public sealed class Schema(string scriptDirectory, IEnumerable<Table> tables)
 {
-    public sealed class Schema
-    {
-        public Schema(string scriptDirectory, IEnumerable<Table> tables)
-        {
-            ScriptDirectory = scriptDirectory;
-            Tables = tables;
-        }
+    public string ScriptDirectory { get; } = scriptDirectory;
 
-        public string ScriptDirectory { get; }
-
-        public IEnumerable<Table> Tables { get; }
-        
-    }
+    public IEnumerable<Table> Tables { get; } = tables;
 }

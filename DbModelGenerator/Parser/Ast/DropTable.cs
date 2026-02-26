@@ -1,12 +1,11 @@
-namespace DbModelGenerator.Parser.Ast
-{
-    public sealed class DropTable : DdlTableStatement
-    {
-        public DropTable(string table)
-        {
-            Table = table;
-        }
+namespace DbModelGenerator.Parser.Ast;
 
-        public override string Table { get; }
+public sealed class DropTable : DdlTableStatement
+{
+    public DropTable(string table)
+    {
+        Table = table;
     }
+
+    public override string Table { get; }
 }

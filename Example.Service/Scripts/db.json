@@ -1,0 +1,12 @@
+{
+  "interfaces": [
+    "Example.Service.IEntity",
+    "Example.Service.IDbEntity(created_by)"
+  ],
+  "primaryKeyAttribute": "Example.Service.PrimaryKey",
+  "autoIncrementAttribute": "Example.Service.AutoIncrement",
+  "suffix": "Db",
+  "ignores": [
+    "role"
+  ]
+}

@@ -1,45 +1,90 @@
 using System;
-using System.IO;
-using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text.Json;
+using Microsoft.CodeAnalysis;
 
-namespace DbModelGenerator
+namespace DbModelGenerator;
+
+[Generator]
+public class GenerateDbModel : IIncrementalGenerator
 {
-    public sealed class GenerateDbModel : Task
+    public void Initialize(IncrementalGeneratorInitializationContext initContext)
     {
-        public string EntityInterface { get; set; }
+        var project = initContext.AnalyzerConfigOptionsProvider
+            .Select(Parameters.GetProjectInfo);
 
-        public string PrimaryKeyAttribute { get; set; }
-
-        public string AutoIncrementAttribute { get; set; }
-
-        public string Suffix { get; set; }
-
-        public string ScriptsDir { get; set; }
-
-        public string Ignore { get; set; }
-
-        [Output] public ITaskItem[] GeneratedFiles { get; private set; }
-
-        public override bool Execute()
-        {
-            var projectPath = Path.GetDirectoryName(BuildEngine3.ProjectFileOfTaskNode);
-            if (projectPath == null)
+        var additionalFiles = initContext.AdditionalTextsProvider.Combine(project)
+            .Where(providers =>
             {
-                throw new ArgumentException("ProjectPath is not defined");
-            }
+                var (file, projectInfo) = providers;
+                return file.Path.StartsWith(projectInfo.ScriptPath);
+            })
+            .Select((providers, cancellationToken) =>
+            {
+                var (file, projectInfo) = providers;
+                return new InputFile(
+                    $"{file.Path.Replace($"{projectInfo.ScriptPath}/", "")}",
+                    file.GetText(cancellationToken)!.ToString());
+            })
+            .Collect();
 
-            var scriptsDirectory = ScriptsDir ?? "Scripts";
+        initContext.RegisterSourceOutput(additionalFiles.Combine(project),
+            (context, providers) =>
+            {
+                var (files, projectInfo) = providers;
 
-            var scriptsPath = Path.Combine(projectPath, scriptsDirectory);
+                try
+                {
+                    ProcessFiles(projectInfo, context, files);
+                }
+                catch (Exception e)
+                {
+                    var diagnostic = ErrorUtils.MapException(e);
+                    context.ReportDiagnostic(diagnostic);
+                }
+            });
+    }
 
-            var parameters = new Parameters(EntityInterface, PrimaryKeyAttribute, AutoIncrementAttribute, Suffix,
-                Ignore ?? "", projectPath, scriptsPath);
-            Log.LogMessage("GeneraDbModel parameters:\n", parameters);
+    private static void ProcessFiles(ProjectInfo projectInfo, SourceProductionContext context,
+        ImmutableArray<InputFile> files)
+    {
+        var configFile = files
+            .Where(f => f.Path.Equals("db.json", StringComparison.InvariantCultureIgnoreCase))
+            .Select(f =>
+            {
+                try
+                {
+                    return JsonSerializer.Deserialize<Parameters>(f.Content,
+                        new JsonSerializerOptions
+                        {
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                            PropertyNameCaseInsensitive = true
+                        });
+                }
+                catch (Exception e)
+                {
+                    throw new DbModelGeneratorException(Location.Create($"{projectInfo.ScriptPath}/{f.Path}", default, default), e.Message);
+                }
+            })
+            .FirstOrDefault() ?? Parameters.Default();
 
-            GeneratedFiles = DbModelGenerator.Generate(parameters, Log);
+        var generatedOutput = files
+            .Where(f => f.Path.EndsWith(".sql", StringComparison.InvariantCultureIgnoreCase))
+            .GroupBy(f => f.Path.Split('/').First())
+            .Select(kvp => DbSchemaReader.Read(kvp.Key, kvp))
+            .SelectMany(s => TemplateGenerator.Generate(projectInfo, IgnoreTables(s, configFile.Ignores), configFile))
+            .Select(f => (f.Key, f.Value));
 
-            return true;
+        foreach (var (fileName, content) in generatedOutput)
+        {
+            context.AddSource(fileName, content);
         }
+    }
+
+    private static Schema IgnoreTables(Schema schema, ImmutableList<string> ignores)
+    {
+        var toIgnore = ignores.Select(i => i.Trim().ToUpper()).ToImmutableHashSet();
+        return new Schema(schema.ScriptDirectory, schema.Tables.Where(t => !toIgnore.Contains(t.Name.ToUpper())));
     }
 }
