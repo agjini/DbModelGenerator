@@ -2,7 +2,7 @@
 
 A .NET Roslyn incremental source generator that generates POCO `record` classes from SQL migration scripts.
 
-It pairs well with [Dapper](https://github.com/DapperLib/Dapper), [DapperExtensions](https://github.com/tmsmith/Dapper-Extensions), and [DbUp](https://dbup.readthedocs.io/en/latest/) for a true **database-first** workflow.
+It is compatible with **PostgreSQL** syntax and pairs well with [Dapper](https://github.com/DapperLib/Dapper), [DapperExtensions](https://github.com/tmsmith/Dapper-Extensions), and [DbUp](https://dbup.readthedocs.io/en/latest/) for a true **database-first** workflow.
 
 ## How it works
 
@@ -130,20 +130,25 @@ By default the generator looks for scripts in `{ProjectDir}/Scripts`. Override t
 </PropertyGroup>
 ```
 
-## SQL type mapping
+## SQL type mapping (PostgreSQL)
 
 | SQL type | C# type |
 |---|---|
 | `SERIAL` / `INTEGER` / `INT` | `int` |
-| `BIGSERIAL` / `BIGINT` | `long` |
-| `BOOLEAN` | `bool` |
-| `REAL` / `FLOAT` | `float` |
-| `DECIMAL` / `NUMERIC` | `decimal` |
-| `TEXT` / `VARCHAR` / `CHAR` | `string` |
-| `DATE` / `TIMESTAMP` | `DateTime` |
-| `UUID` | `Guid` |
+| `SMALLINT` / `SMALLSERIAL` | `short` |
+| `BIGINT` / `BIGSERIAL` | `long` |
+| `TINYINT` | `byte` |
+| `BOOLEAN` / `BIT` | `bool` |
+| `REAL` / `NUMERIC` / `DECIMAL` / `DOUBLE PRECISION` / `MONEY` | `decimal` |
+| `TEXT` / `VARCHAR` / `CHAR` (and any unrecognised type) | `string` |
+| `BINARY` / `VARBINARY` / `BLOB` | `byte[]` |
+| `DATE` | `DateOnly` |
+| `TIME` | `TimeOnly` |
+| `TIMESTAMP` / `DATETIME` | `DateTime` |
+| `UUID` / `UNIQUEIDENTIFIER` | `Guid` |
 
 Nullable columns (without `NOT NULL`) produce nullable C# types (`int?`, `string?`, …).
+`SERIAL` / `SMALLSERIAL` / `BIGSERIAL` columns are always nullable (`int?`) since their value is assigned by the database on insert.
 
 ## Complete example
 
