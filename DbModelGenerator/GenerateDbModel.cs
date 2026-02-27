@@ -74,13 +74,12 @@ public class GenerateDbModel : IIncrementalGenerator
             .Where(f => f.Path.EndsWith(".sql", StringComparison.InvariantCultureIgnoreCase))
             .GroupBy(f => GetParentFolderIfExist(f, projectInfo.ScriptPath))
             .Select(kvp => DbSchemaReader.Read(kvp.Key, kvp))
-            .Select(result =>
+            .SelectMany(result =>
             {
-                var (schema, errors) = result;
-                errors.ForEach(error => context.ReportDiagnostic(ErrorUtils.MapException(error)));
-                return schema;
+                var (schema, exceptions) = result;
+                exceptions.ForEach(exception => context.ReportDiagnostic(ErrorUtils.MapException(exception)));
+                return TemplateGenerator.Generate(projectInfo, IgnoreTables(schema, configFile.Ignores), configFile);
             })
-            .SelectMany(s => TemplateGenerator.Generate(projectInfo, IgnoreTables(s, configFile.Ignores), configFile))
             .Select(f => (f.Key, f.Value));
 
         foreach (var (fileName, content) in generatedOutput)

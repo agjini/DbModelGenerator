@@ -13,7 +13,7 @@ using Sprache;
 
 namespace DbModelGenerator;
 
-public sealed class DbSchemaReader
+public static class DbSchemaReader
 {
     public static (Schema, ImmutableList<SqlParserException>) Read(string scriptDirectory,
         IEnumerable<InputFile> allSqlFilesContent)
