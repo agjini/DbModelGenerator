@@ -7,21 +7,28 @@ using DbModelGenerator.Parser.Ast;
 using DbModelGenerator.Parser.Ast.Alter;
 using DbModelGenerator.Parser.Ast.Constraint;
 using DbModelGenerator.Parser.Ast.Create;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 using Sprache;
 
 namespace DbModelGenerator;
 
 public sealed class DbSchemaReader
 {
-    public static Schema Read(string scriptDirectory, IEnumerable<InputFile> allSqlFilesContent)
+    public static (Schema, ImmutableList<SqlParserException>) Read(string scriptDirectory,
+        IEnumerable<InputFile> allSqlFilesContent)
     {
         var tables =
             new SortedDictionary<string, ColumnsCollection>(StringComparer.InvariantCultureIgnoreCase);
+
+        var parserExceptions = ImmutableList.CreateBuilder<SqlParserException>();
+
         foreach (var inputSqlFile in allSqlFilesContent.OrderBy(f => f.Path))
         {
             var content = IgnoreComments(inputSqlFile.Content);
 
-            var statements = Parser.Parser.DdlTableStatements.Parse(content);
+            var statements =
+                GetDdlTableStatements(GetFilePath(scriptDirectory, inputSqlFile), content, parserExceptions);
 
             foreach (var ddlTableStatement in statements)
             {
@@ -48,9 +55,29 @@ public sealed class DbSchemaReader
             }
         }
 
-        return new Schema(scriptDirectory, tables
+        return (new Schema(scriptDirectory, tables
             .Select(e => new Table(e.Key, e.Value.Columns.ToImmutableList(), e.Value.GetPrimaryKeys()))
-            .ToImmutableList());
+            .ToImmutableList()), parserExceptions.ToImmutable());
+    }
+
+    private static string GetFilePath(string scriptDirectory, InputFile inputSqlFile) =>
+        scriptDirectory != inputSqlFile.Path ? $"{scriptDirectory}/{inputSqlFile.Path}" : inputSqlFile.Path;
+
+    private static ImmutableList<DdlTableStatement> GetDdlTableStatements(string filePath, string content,
+        ImmutableList<SqlParserException>.Builder parsingExceptions)
+    {
+        try
+        {
+            return Parser.Parser.DdlTableStatements.Parse(content);
+        }
+        catch (ParseException pe)
+        {
+            parsingExceptions.Add(new SqlParserException(
+                Location.Create(filePath, default,
+                    new LinePositionSpan(new LinePosition(pe.Position.Line - 1, pe.Position.Column),
+                        new LinePosition(pe.Position.Line - 1, pe.Position.Column))), pe.Message));
+            return ImmutableList<DdlTableStatement>.Empty;
+        }
     }
 
     private static string IgnoreComments(string content)

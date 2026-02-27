@@ -1,9 +1,15 @@
 using System;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
 namespace DbModelGenerator;
 
 public sealed class DbModelGeneratorException(Location location, string message) : ArgumentException(message)
+{
+    public Location Location => location;
+}
+
+public sealed class SqlParserException(Location location, string message) : ArgumentException(message)
 {
     public Location Location => location;
 }
@@ -22,6 +28,16 @@ public static class ErrorUtils
                     DiagnosticSeverity.Error,
                     isEnabledByDefault: true),
                 e.Location
+            ),
+            SqlParserException pse => Diagnostic.Create(
+                new DiagnosticDescriptor(
+                    "DbMG002",
+                    "Invalid parsing",
+                    pse.Message,
+                    "DbModelGenerator",
+                    DiagnosticSeverity.Error,
+                    isEnabledByDefault: true),
+                pse.Location
             ),
             _ => Diagnostic.Create(
                 new DiagnosticDescriptor(
