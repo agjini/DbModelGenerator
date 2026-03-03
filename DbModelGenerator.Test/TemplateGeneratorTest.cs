@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -6,6 +7,14 @@ namespace DbModelGenerator.Test;
 
 public sealed class TemplateGeneratorTest
 {
+    [SetUp]
+    public void Setup()
+    {
+        ColumnParser.SetMappings(new Dictionary<string, ParameterType>
+                { { "jsonb", new ParameterType("JsonDocument", "System.Text.Json") } }
+            .ToImmutableDictionary());
+    }
+
     [Test]
     public void GenerateAClassForOneTable()
     {
@@ -100,6 +109,46 @@ public sealed record UserProfile(
     [PrimaryKey]
     int GroupId
 ) : IRoleEntity, IGroupEntity<int>;";
+        ClassicAssert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void GenerateAClassForOneTableWithMultipleUsings()
+    {
+        var table = new Table("user_profile",
+            new[]
+            {
+                new Column("id", "Guid", false, false, false),
+                new Column("vector", "Vector", false, false, false),
+                new Column("json", "JsonDocument", true, false, false)
+            }.ToImmutableList(),
+            ImmutableSortedSet.Create("id"));
+
+        var actual =
+            TemplateGenerator.GenerateClass("Project.Generated.Global", table,
+                [
+                    "Odin.Api.IIdentity",
+                    "Odin.Api.IRoleEntity(role_id)",
+                    "Odin.Api.IGroupEntity(role_id,group_id!)",
+                    "Odin.Api.Entity.IDbEntity(model_id,created_by,creation_date,modified_by,modification_date)"
+                ],
+                "Odin.Api.PrimaryKey",
+                "Odin.Api.Generated",
+                null);
+
+        const string expected = @"using System;
+using Pgvector;
+using System.Text.Json;
+using Odin.Api;
+
+namespace Project.Generated.Global;
+
+public sealed record UserProfile(
+    [PrimaryKey]
+    Guid Id,
+    Vector Vector,
+    JsonDocument? Json
+) : IIdentity<Guid>;";
         ClassicAssert.AreEqual(expected, actual);
     }
 }

@@ -58,10 +58,7 @@ public sealed class TemplateGenerator
         var autoIncrementAttributeClass = ParseClassName(autoIncrementAttribute);
         var contentBuilder = new StringBuilder();
 
-        if (ColumnParser.RequiresSystemUsing(table.Columns))
-        {
-            contentBuilder.Append("using System;\n");
-        }
+        contentBuilder.Append(ColumnParser.GetUsing(table.Columns));
 
         var hasPrimaryKeys = table.Columns
             .Any(c => table.IsPrimaryKey(c.Name));
@@ -168,7 +165,8 @@ public sealed class TemplateGenerator
         var match = Regex.Match(identityInterface, pattern);
         if (!match.Success)
         {
-            throw new ArgumentException($"Parameter IdentityInterface has wrong format : {identityInterface} must be of the form 'Namespace.ClassName'");
+            throw new ArgumentException(
+                $"Parameter IdentityInterface has wrong format : {identityInterface} must be of the form 'Namespace.ClassName'");
         }
 
         var ns = match.Groups["ns"].Value;

@@ -8,5 +8,9 @@
   "suffix": "Db",
   "ignores": [
     "role"
-  ]
+  ],
+  "jsonb": {
+    "library": "Newtonsoft.Json.Linq",
+    "type": "JObject"
+  }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.Json;
@@ -64,10 +65,14 @@ public class GenerateDbModel : IIncrementalGenerator
                 }
                 catch (Exception e)
                 {
-                    throw new DbModelGeneratorException(Location.Create($"{projectInfo.ScriptPath}/{f.Path}", default, default), e.Message);
+                    throw new DbModelGeneratorException(
+                        Location.Create($"{projectInfo.ScriptPath}/{f.Path}", default, default), e.Message);
                 }
             })
             .FirstOrDefault() ?? Parameters.Default();
+
+        ColumnParser.SetMappings(new Dictionary<string, ParameterType> { { "jsonb", configFile.Jsonb } }
+            .ToImmutableDictionary());
 
         var generatedOutput = files
             .Where(f => f.Path.EndsWith(".sql", StringComparison.InvariantCultureIgnoreCase))
