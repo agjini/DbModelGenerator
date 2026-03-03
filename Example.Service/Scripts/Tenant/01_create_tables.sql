@@ -11,8 +11,10 @@ CREATE TABLE user_profile
     disabled    BOOLEAN      NOT NULL DEFAULT '0',
     groupId     TEXT         NOT NULL,
     latitude    DECIMAL(10, 5),
+    content     JSONB,
     created_by  TEXT         NOT NULL,
     created_day DATE         NOT NULL,
+    embedding   VECTOR(768),
     PRIMARY KEY (id)
 );
 

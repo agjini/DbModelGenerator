@@ -19,7 +19,7 @@ public class TestAdditionalFile(string path, string text) : AdditionalText
     public override string Path { get; } = path;
 }
 
-public sealed class SourceGeneratorTest 
+public sealed class SourceGeneratorTest
 {
     private const string Config = @"
         {
@@ -40,7 +40,7 @@ public sealed class SourceGeneratorTest
             logo        VARCHAR(200),
             archived    BOOLEAN DEFAULT '0',
             color       VARCHAR(100) NOT NULL,
-            external_id VARCHAR(500),
+            external_id VARCHAR(500)
             PRIMARY KEY (id),
             UNIQUE (name)
         );
@@ -65,7 +65,8 @@ public sealed class SourceGeneratorTest
         {
             ["build_property.projectdir"] = "/home/test/DbModelGenerator.Test/"
         };
-        _driver = CSharpGeneratorDriver.Create(generator).WithUpdatedAnalyzerConfigOptions(CompilerAnalyzerConfigOptionsProvider.WithOptions(options));
+        _driver = CSharpGeneratorDriver.Create(generator)
+            .WithUpdatedAnalyzerConfigOptions(CompilerAnalyzerConfigOptionsProvider.WithOptions(options));
     }
 
     [Fact]
@@ -92,5 +93,93 @@ public sealed class SourceGeneratorTest
         {
             "BrandDb.cs"
         }, generatedFiles);
+    }
+
+    private const string ConfigWithMapping = @"
+        {
+          ""primaryKeyAttribute"": ""Example.Service.PrimaryKey"",
+          ""autoIncrementAttribute"": ""Example.Service.AutoIncrement"",
+          ""suffix"": ""Db"",
+          ""ignores"": [
+            ""role""
+          ],
+          ""jsonb"": {
+            ""library"": ""Newtonsoft.Json.Linq"",
+            ""type"": ""JObject""
+          }
+        }
+    ";
+
+    private const string CreateTableWithMapping = @"
+        CREATE TABLE brand
+        (
+            id          SERIAL       NOT NULL,
+            name        VARCHAR(50)  NOT NULL,
+            logo        VARCHAR(200),
+            archived    BOOLEAN DEFAULT '0',
+            color       VARCHAR(100) NOT NULL,
+            external_id VARCHAR(500),
+            json        JSONB       NOT NULL,
+            PRIMARY KEY (id),
+            UNIQUE (name)
+        );
+    ";
+
+    [Fact]
+    public void GenerateDbModelWithJsonSpecified()
+    {
+        _driver = _driver.AddAdditionalTexts(
+            [
+                new TestAdditionalFile("/home/test/DbModelGenerator.Test/Scripts/db.json", ConfigWithMapping),
+                new TestAdditionalFile("/home/test/DbModelGenerator.Test/Scripts/script_1.sql", CreateTableWithMapping)
+            ]
+        );
+
+        var compilation = CSharpCompilation.Create(nameof(GenerateDbModel));
+
+        _driver.RunGeneratorsAndUpdateCompilation(compilation, out var newCompilation, out _);
+
+        var generatedFiles = newCompilation.SyntaxTrees
+            .Select(t => Path.GetFileName(t.FilePath))
+            .ToArray();
+
+        Assert.Equivalent(new[]
+        {
+            "BrandDb.cs"
+        }, generatedFiles);
+
+        var generatedCode = newCompilation.SyntaxTrees
+            .Select(t => t.GetText().ToString());
+
+        Assert.Contains("using Newtonsoft.Json.Linq;", generatedCode.First());
+    }
+    
+    [Fact]
+    public void GenerateDbModelDefaultJson()
+    {
+        _driver = _driver.AddAdditionalTexts(
+            [
+                new TestAdditionalFile("/home/test/DbModelGenerator.Test/Scripts/db.json", Config),
+                new TestAdditionalFile("/home/test/DbModelGenerator.Test/Scripts/script_1.sql", CreateTableWithMapping)
+            ]
+        );
+
+        var compilation = CSharpCompilation.Create(nameof(GenerateDbModel));
+
+        _driver.RunGeneratorsAndUpdateCompilation(compilation, out var newCompilation, out _);
+
+        var generatedFiles = newCompilation.SyntaxTrees
+            .Select(t => Path.GetFileName(t.FilePath))
+            .ToArray();
+
+        Assert.Equivalent(new[]
+        {
+            "BrandDb.cs"
+        }, generatedFiles);
+
+        var generatedCode = newCompilation.SyntaxTrees
+            .Select(t => t.GetText().ToString());
+
+        Assert.Contains("using System.Text.Json;", generatedCode.First());
     }
 }
