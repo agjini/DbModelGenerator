@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,14 @@ namespace DbModelGenerator.Test;
 [TestFixture]
 public class DbSchemaReaderTest
 {
+    [SetUp]
+    public void Setup()
+    {
+        ColumnParser.SetMappings(new Dictionary<string, ParameterType>
+                { { "jsonb", new ParameterType("JsonDocument", "System.Text.Json") } }
+            .ToImmutableDictionary());
+    }
+
     private static ImmutableList<InputFile> GetDirectoryContent(string scriptDirectory)
     {
         var scriptNamespace = Path.GetFileName(scriptDirectory);
@@ -323,6 +332,24 @@ public class DbSchemaReaderTest
             new Column("id", "int", false, false, true),
             new Column("date", "DateOnly", true, false, false),
             new Column("time", "TimeOnly", true, false, false)
+        ), ImmutableSortedSet.Create("id"));
+
+        actual.Tables.ShouldDeepEqual(ImmutableList.Create(table));
+    }
+
+    [Test]
+    public void ShouldGenerateModelFromScripts16()
+    {
+        var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
+        var scriptsPath = Path.Combine(testProjectDirectory, "Scripts16");
+
+        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+
+        var table = new Table("uuid_json_and_text_array", ImmutableList.Create(
+            new Column("id", "Guid", false, false, false),
+            new Column("json", "JsonDocument", false, false, false),
+            new Column("text_array", "ImmutableList<string>", true, false, false),
+            new Column("vector", "Vector", false, false, false)
         ), ImmutableSortedSet.Create("id"));
 
         actual.Tables.ShouldDeepEqual(ImmutableList.Create(table));

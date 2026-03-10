@@ -79,15 +79,15 @@ public static class Parser
         from leading in Parse.WhiteSpace.Many()
         from openParenthesis in Parse.Char('(')
         from innerLeading in Parse.WhiteSpace.Many()
-        from info in Parse.Regex(new Regex(@"[^)]+", RegexOptions.IgnoreCase))
-        from innerTraziling in Parse.WhiteSpace.Many()
+        from info in Parse.Regex(new Regex("[^)]+", RegexOptions.IgnoreCase))
+        from innerTrailing in Parse.WhiteSpace.Many()
         from _ in Parse.WhiteSpace.Many()
         from closeParenthesis in Parse.Char(')')
         from trailing in Parse.WhiteSpace.Many()
         select info;
 
     private static readonly Parser<string> Type =
-        from type in Parse.Regex(new Regex(@"\w+", RegexOptions.IgnoreCase))
+        from type in Parse.Regex(new Regex(@"[\w\[\]]+", RegexOptions.IgnoreCase))
         from info in TypeInfo.Optional()
         select type;
 

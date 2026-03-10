@@ -8,19 +8,28 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace DbModelGenerator;
 
+public sealed class ParameterType(
+    string type,
+    string library
+)
+{
+    public string Type { get; } = type;
+    public string Library { get; } = library;
+}
+
 public sealed class Parameters(
     ImmutableList<string>? interfaces,
     string? primaryKeyAttribute,
     string? autoIncrementAttribute,
     string? suffix,
-    ImmutableList<string>? ignores
+    ImmutableList<string>? ignores,
+    ParameterType? jsonb
 )
 {
     public static Parameters Default()
     {
-        return new Parameters(null, null, null, null, null);
+        return new Parameters(null, null, null, null, null, null);
     }
-
 
     private static readonly ImmutableList<string> RoslynOptions =
     [
@@ -61,6 +70,8 @@ public sealed class Parameters(
     public string Suffix { get; } = suffix ?? "";
 
     public ImmutableList<string> Ignores { get; } = ignores ?? [];
+
+    public ParameterType Jsonb { get; } = jsonb ?? new ParameterType("JsonDocument", "System.Text.Json");
 
     public override string ToString()
     {

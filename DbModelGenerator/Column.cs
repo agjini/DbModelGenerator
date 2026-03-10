@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -6,17 +6,57 @@ namespace DbModelGenerator;
 
 public static class ColumnParser
 {
-    public static bool RequiresSystemUsing(IEnumerable<Column> columns)
+    private static ImmutableDictionary<string, ParameterType> _mappings =
+        ImmutableDictionary<string, ParameterType>.Empty;
+
+    public static void SetMappings(ImmutableDictionary<string, ParameterType> mappings) => _mappings = mappings;
+
+    public static string GetUsing(ImmutableList<Column> columns)
     {
-        return columns.Any(column => column.RequiresSystemUsing());
+        var usings = ImmutableList.Create<string>();
+        if (columns.Any(column => column.RequiresSystemUsing()))
+        {
+            usings = usings.Add("using System;");
+        }
+
+        if (columns.Any(column => column.RequiresPgVectorUsing()))
+        {
+            usings = usings.Add("using Pgvector;");
+        }
+
+        if (columns.Any(column => column.RequiresUsingJson()))
+        {
+            usings = usings.Add($"using {GetLibrary("jsonb")!};");
+        }
+
+        return usings.Any() ? $"{string.Join("\n", usings)}\n" : string.Empty;
+    }
+
+    private static bool IsArrayType(string dataType)
+    {
+        var regex = new Regex(@"(\[(?:\d)*\])+");
+        return regex.IsMatch(dataType);
     }
 
     public static string ParseType(string datatype)
     {
-        var match = Regex.Match(datatype, @"(\w+).*");
-        var value = match.Groups[1].Value;
+        var type = ParseGenericType(datatype);
 
-        switch (value.ToLower())
+        return !IsArrayType(datatype) ? type : $"ImmutableList<{type}>";
+    }
+
+    private static string ParseGenericType(string datatype)
+    {
+        var match = Regex.Match(datatype, @"(\w+).*(\[(?:\d)*\])*");
+        var value = match.Groups[1].Value.ToLower();
+
+        var typeMapped = GetType(value);
+        if (typeMapped is not null)
+        {
+            return typeMapped;
+        }
+
+        switch (value)
         {
             case "serial":
             case "int":
@@ -46,6 +86,7 @@ public static class ColumnParser
             case "money":
                 return "decimal";
 
+            case "uuid":
             case "uniqueidentifier":
                 return "Guid";
 
@@ -61,9 +102,29 @@ public static class ColumnParser
             case "boolean":
                 return "bool";
 
+            case "vector":
+                return "Vector";
+
             default:
                 return "string";
         }
+    }
+
+    private static ParameterType? GetParameterType(string datatype)
+    {
+        return _mappings.TryGetValue(datatype, out var parameterType) ? parameterType : null;
+    }
+
+    public static string? GetType(string datatype)
+    {
+        var parameterType = GetParameterType(datatype);
+        return parameterType?.Type;
+    }
+
+    private static string? GetLibrary(string datatype)
+    {
+        var parameterType = GetParameterType(datatype);
+        return parameterType?.Library;
     }
 }
 
@@ -96,6 +157,16 @@ public sealed class Column
     public bool RequiresSystemUsing()
     {
         return Type.Equals("Guid") || Type.Equals("DateTime") || Type.Equals("TimeOnly") || Type.Equals("DateOnly");
+    }
+
+    public bool RequiresPgVectorUsing()
+    {
+        return Type.Equals("Vector");
+    }
+
+    public bool RequiresUsingJson()
+    {
+        return Type.Equals(ColumnParser.GetType("jsonb"));
     }
 
     public override string ToString()
