@@ -11,5 +11,5 @@ dotnet build -c Release
 # vi ~/.bashrc
 # export NUGET_AUTH_KEY=XXXXX
 
-# dotnet nuget push DbModelGenerator/bin/Release/*.nupkg -k ${NUGET_AUTH_KEY} -s https://api.nuget.org/v3/index.json
+dotnet nuget push DbModelGenerator/bin/Release/*.nupkg -k ${NUGET_AUTH_KEY} -s https://api.nuget.org/v3/index.json
 

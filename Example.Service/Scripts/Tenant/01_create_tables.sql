@@ -1,6 +1,6 @@
 CREATE TABLE user_profile
 (
-    id          SERIAL       NOT NULL,
+    id          UUID       NOT NULL,
     email       VARCHAR(255) NOT NULL,
     firstName   VARCHAR(255) NOT NULL,
     lastName    VARCHAR(255) NOT NULL,
