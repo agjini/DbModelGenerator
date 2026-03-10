@@ -39,8 +39,7 @@ public class DbSchemaReaderTest
     {
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts");
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var brandTable = new Table("brand", ImmutableList.Create(
             new Column("id", "int", false, false, true),
@@ -59,8 +58,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts2");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var brandTable = new Table("brand", ImmutableList.Create(
             new Column("id", "int", false, false, true),
@@ -85,8 +83,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts3");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var bbbTable = new Table("bbbb", ImmutableList.Create(
             new Column("id", "int", false, false, true),
@@ -108,8 +105,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts4");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var bbbTable = new Table("bbbb", ImmutableList.Create(
             new Column("name", "string", false, false, false),
@@ -126,8 +122,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts5");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var userProfile = new Table("user_profile", ImmutableList.Create(
             new Column("id", "int", false, false, true),
@@ -160,8 +155,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts6");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var tenant = new Table("tenant", ImmutableList.Create(
             new Column("id", "int", false, false, true),
@@ -181,8 +175,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts7");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         ClassicAssert.AreEqual(8, actual.Tables.Count());
         ClassicAssert.AreEqual(2, actual.Tables.First(t => t.Name == "group_type").Columns.Count);
@@ -201,8 +194,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts8");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var contract = new Table("contract", ImmutableList.Create(
             new Column("id", "int", false, false, true),
@@ -222,8 +214,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts9");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var contract = new Table("contract", ImmutableList.Create(
             new Column("id", "int", false, false, true),
@@ -244,8 +235,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts10");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var contract = new Table("contract", ImmutableList.Create(
             new Column("id", "string", false, false, false)
@@ -264,8 +254,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts11");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var tenantSaml = new Table("tenant_saml", ImmutableList.Create(
             new Column("tenant_id", "string", false, false, false),
@@ -284,8 +273,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts12");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var tenantSaml = new Table("tenant_saml", ImmutableList.Create(
             new Column("new_tenant_id", "string", false, false, false),
@@ -304,8 +292,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts13");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var table = new Table("user_grid_state", ImmutableList.Create(
             new Column("id", "int", false, false, true),
@@ -323,8 +310,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts14");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var table = new Table("user_grid_state", ImmutableList.Create(
             new Column("id", "int", false, false, true),
@@ -340,8 +326,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts15");
 
-
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var table = new Table("date_time_only", ImmutableList.Create(
             new Column("id", "int", false, false, true),

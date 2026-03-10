@@ -99,6 +99,7 @@ public static class Parser
 
     private static readonly Parser<string> ConstraintIdentifier =
         from add in Parse.IgnoreCase("CONSTRAINT").Token()
+        from ifExists in IfExists.Optional()
         from identifier in Identifier
         select identifier;
 
@@ -212,7 +213,6 @@ public static class Parser
     private static readonly Parser<DropConstraint> DropConstraint =
         from a in Parse.IgnoreCase("DROP").Token()
         from identifier in ConstraintIdentifier
-        from ifExists in IfExists.Optional()
         select new DropConstraint(identifier);
 
     private static readonly Parser<DdlAlterTableStatement> DdlAlterTableStatement =
@@ -234,7 +234,7 @@ public static class Parser
         from action in Parse.IgnoreCase("CREATE")
         from separator in Parse.WhiteSpace.Many()
         from column in Parse.IgnoreCase("TABLE")
-        from ifNotExists in IfNotExists.Optional()         
+        from ifNotExists in IfNotExists.Optional()
         from separator1 in Parse.WhiteSpace.Many()
         from table in Identifier
         from separator2 in Parse.WhiteSpace.Many()
@@ -269,7 +269,12 @@ public static class Parser
         from separator2 in Parse.WhiteSpace.Many()
         select c;
 
-    private static readonly Parser<string> NonDdlTableStatement = Parse.Regex(new Regex("[^;]+")).Text();
+    private static readonly Parser<string> NonDdlTableStatement =
+        from action in Parse.IgnoreCase("CREATE")
+            .Or(Parse.IgnoreCase("DROP"))
+            .Or(Parse.IgnoreCase("ALTER")).Not()
+        from _ in Parse.AnyChar.Except(Parse.Char(';')).Many()
+        select "";
 
     public static readonly Parser<ImmutableList<DdlTableStatement>> DdlTableStatements =
         from separator in Parse.WhiteSpace.Many()
