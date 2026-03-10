@@ -64,22 +64,34 @@ public class GenerateDbModel : IIncrementalGenerator
                 }
                 catch (Exception e)
                 {
-                    throw new DbModelGeneratorException(Location.Create($"{projectInfo.ScriptPath}/{f.Path}", default, default), e.Message);
+                    throw new DbModelGeneratorException(
+                        Location.Create($"{projectInfo.ScriptPath}/{f.Path}", default, default), e.Message);
                 }
             })
             .FirstOrDefault() ?? Parameters.Default();
 
         var generatedOutput = files
             .Where(f => f.Path.EndsWith(".sql", StringComparison.InvariantCultureIgnoreCase))
-            .GroupBy(f => f.Path.Split('/').First())
+            .GroupBy(f => GetParentFolderIfExist(f, projectInfo.ScriptPath))
             .Select(kvp => DbSchemaReader.Read(kvp.Key, kvp))
-            .SelectMany(s => TemplateGenerator.Generate(projectInfo, IgnoreTables(s, configFile.Ignores), configFile))
+            .SelectMany(result =>
+            {
+                var (schema, exceptions) = result;
+                exceptions.ForEach(exception => context.ReportDiagnostic(ErrorUtils.MapException(exception)));
+                return TemplateGenerator.Generate(projectInfo, IgnoreTables(schema, configFile.Ignores), configFile);
+            })
             .Select(f => (f.Key, f.Value));
 
         foreach (var (fileName, content) in generatedOutput)
         {
             context.AddSource(fileName, content);
         }
+    }
+
+    private static string GetParentFolderIfExist(InputFile f, string projectInfoScriptPath)
+    {
+        var split = f.Path.Split('/');
+        return split.Length > 1 ? split.First() : projectInfoScriptPath;
     }
 
     private static Schema IgnoreTables(Schema schema, ImmutableList<string> ignores)
