@@ -343,7 +343,7 @@ public class DbSchemaReaderTest
         var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
         var scriptsPath = Path.Combine(testProjectDirectory, "Scripts16");
 
-        var actual = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
 
         var table = new Table("uuid_json_and_text_array", ImmutableList.Create(
             new Column("id", "Guid", false, false, false),
