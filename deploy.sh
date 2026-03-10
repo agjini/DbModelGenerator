@@ -4,6 +4,8 @@ set -e
 rm -Rf DbModelGenerator/bin
 rm -Rf DbModelGenerator/obj
 
+dotnet test DbModelGenerator.Test/DbModelGenerator.Test.csproj -c Release
+
 dotnet pack DbModelGenerator/DbModelGenerator.csproj -c Release
 
 # Be sure to add nuget API key before in your bashrc
