@@ -251,6 +251,7 @@ public static class Parser
     public static readonly Parser<AlterTable> AlterTable =
         from action in Parse.IgnoreCase("ALTER").Token()
         from column in Parse.IgnoreCase("TABLE").Token()
+        from ifExists in IfExists.Optional()
         from table in Identifier.Token()
         from ddlAlterTableStatements in DdlAlterTableStatement.DelimitedBy(Parse.Char(','))
         select new AlterTable(table, ddlAlterTableStatements.ToImmutableList());
