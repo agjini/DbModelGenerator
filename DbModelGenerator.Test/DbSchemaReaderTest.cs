@@ -369,4 +369,26 @@ public class DbSchemaReaderTest
 
         actual.Tables.ShouldDeepEqual(ImmutableList.Create(table));
     }
+
+    [Test]
+    public void ShouldGenerateModelFromScripts18()
+    {
+        var testProjectDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../");
+        var scriptsPath = Path.Combine(testProjectDirectory, "Scripts18");
+
+        var (actual, _) = DbSchemaReader.Read(scriptsPath, GetDirectoryContent(scriptsPath));
+
+        var table1 = new Table("table1", ImmutableList.Create(
+            new Column("id", "int", false, false, true),
+            new Column("test", "DateTime", false, false, false)
+        ), ImmutableSortedSet.Create("id"));
+
+        var table2 = new Table("table2", ImmutableList.Create(
+            new Column("id", "int", false, false, true),
+            new Column("test", "DateTime", false, false, false)
+        ), ImmutableSortedSet.Create("id"));
+
+
+        actual.Tables.ShouldDeepEqual(ImmutableList.Create(table1, table2));
+    }
 }

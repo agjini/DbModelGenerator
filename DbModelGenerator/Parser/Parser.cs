@@ -270,8 +270,14 @@ public static class Parser
         from separator2 in Parse.WhiteSpace.Many()
         select c;
 
-    private static readonly Parser<string> NonDdlTableStatement =
+    private static readonly Parser<string> CreateTableStart =
         from action in Parse.IgnoreCase("CREATE")
+        from separator in Parse.WhiteSpace.Many()
+        from alternative in Parse.IgnoreCase("TABLE")
+        select "";
+    
+    private static readonly Parser<string> NonDdlTableStatement =
+        from action in CreateTableStart
             .Or(Parse.IgnoreCase("DROP"))
             .Or(Parse.IgnoreCase("ALTER")).Not()
         from _ in Parse.AnyChar.Except(Parse.Char(';')).Many()
