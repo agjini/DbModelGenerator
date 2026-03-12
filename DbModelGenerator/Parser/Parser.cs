@@ -251,6 +251,7 @@ public static class Parser
     public static readonly Parser<AlterTable> AlterTable =
         from action in Parse.IgnoreCase("ALTER").Token()
         from column in Parse.IgnoreCase("TABLE").Token()
+        from ifExists in IfExists.Optional()
         from table in Identifier.Token()
         from ddlAlterTableStatements in DdlAlterTableStatement.DelimitedBy(Parse.Char(','))
         select new AlterTable(table, ddlAlterTableStatements.ToImmutableList());
@@ -269,8 +270,14 @@ public static class Parser
         from separator2 in Parse.WhiteSpace.Many()
         select c;
 
-    private static readonly Parser<string> NonDdlTableStatement =
+    private static readonly Parser<string> CreateTableStart =
         from action in Parse.IgnoreCase("CREATE")
+        from separator in Parse.WhiteSpace.Many()
+        from alternative in Parse.IgnoreCase("TABLE")
+        select "";
+    
+    private static readonly Parser<string> NonDdlTableStatement =
+        from action in CreateTableStart
             .Or(Parse.IgnoreCase("DROP"))
             .Or(Parse.IgnoreCase("ALTER")).Not()
         from _ in Parse.AnyChar.Except(Parse.Char(';')).Many()
